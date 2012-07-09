@@ -14,13 +14,20 @@ trait Stream[A] {
   def foldRight[B](z: => B)(f: (A, => B) => B) : B = 
     uncons.map {
         case (h,t) => f(h, t.foldRight(z)(f))
-      }.getOrElse(z)
+    }.getOrElse(z)
      
   def exists(f: A => Boolean) : Boolean = foldRight(false)((h,t) => f(h) || t)
   def forall(f: A => Boolean) : Boolean = foldRight(true)((h, t) => f(h) && t)
 
   def takeWhile2(f: A => Boolean) : Stream[A] = 
-    foldRight(Stream.empty[A])((h,t) => if (f(h)) Stream.cons(h, t) else t )
+    foldRight(Stream.empty[A])((h, t) => if (f(h)) Stream.cons(h, t.takeWhile2(f)) else Stream.empty[A])
+
+  /*
+    uncons.map {
+        case (hd, tl) => if (f(hd)) {println("passed: " + hd); Stream.cons(hd, tl takeWhile2 f)} else Stream.empty[A]
+    }.getOrElse(Stream.empty[A])
+*/
+    //logical error somewhere --------> foldRight(Stream.empty[A])((h,t) => if (f(h)) Stream.cons(h, t) else Stream.empty[A] )
 
     // The expression below doesn't work and it'll complain of variance issues
     // The workaround is to include the type annotation in 'Stream.empty[A]' so 
@@ -46,6 +53,17 @@ trait Stream[A] {
        sb.append("]")
        sb.toString
   }
+
+  def take(n: Int) : Stream[A] = {
+    def takeIn(n : Int)(ss: Stream[A]): Stream[A] = {
+      if (n == 0) Stream.empty[A]
+      else 
+      ss.uncons.map {
+        case (h,t)  => Stream.cons(h, takeIn(n - 1)(t))
+      }.getOrElse(Stream.empty[A])
+    }
+    takeIn(n)(this)
+  }
 }
 
 object Stream {
@@ -63,6 +81,8 @@ object Stream {
     if (as.isEmpty) empty
     else cons(as.head, apply(as.tail: _*))
 
+  def constant[A](a: A) : Stream[A] = cons(a, constant(a))
+  def from(i: Int) : Stream[Int] = cons(i, from(i + 1))
 }
 
 
@@ -87,5 +107,15 @@ object TestStream extends App {
     println(s ++ Stream(11,12,13))
 
     println(s.flatMap(i => Stream(i*math.Pi)))
+
+    lazy val ones : Stream[Int] = Stream.cons(1, ones)
+    println("* " + ones.map(_ + 1).exists(_ % 2 == 0))
+    println("* " + ones.forall( _ != 1))
+    println("* " + ones.take(5) ) 
+    
+    println("* "+ ones.takeWhile2(_ == 1) ) 
+    
+    val r = Stream.from(5)
+    println("* " +r.take(10))
 }
 
