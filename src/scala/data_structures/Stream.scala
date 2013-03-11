@@ -1,121 +1,151 @@
-import scala.collection.immutable.{Stream => _ }
+import scala.collection.mutable._
 
-trait Stream[A] {
+// Laziness lets us separate the description of an expression from the evaluation of that expression. This gives 
+// us a powerful ability - we may choose to describe an larger expression than we need, then evaluate only a portion of it.
+// As an example, consider foldRight - we can implement this for Stream much like we did for List, but lazily
+object Chapter5 {
 
-  /* This is actually a Monad */
+	trait Stream[+A] {
+	    def foldRight[B](z: => B)(f: (A, => B) => B) : B =
+	        uncons match {
+	            case Some((h, t)) => f(h, t.foldRight(z)(f))
+	            case None => z
+	        }
+	    // This is about separating the concerns of describing
+	    // a computation from the concern of evaluation 
+	    // makes our descriptions more reusable than when these concerns 
+	    // are intertwined.
+	    def exists(p : A => Boolean) : Boolean = 
+	        foldRight(false)((a,b) => p(a) || b) 
+	    def forAll(p : A => Boolean) : Boolean = 
+	        foldRight(false)((a,b) => p(a) || b)
+	        
+	    def uncons : Option[(A, Stream[A])]
+	
+	    def isEmpty : Boolean = uncons.isEmpty
+	
+	    def takeWhileViaFoldRight(p : A => Boolean) : Stream[A] = {
+	        import Stream._
+	        foldRight(empty[A])((e, l) => if (p(e)) cons(e,l) else empty)
+	    }
+	
+	    def map[B](f: A => B ) : Stream[B] = {
+	        import Stream._
+	        foldRight(empty[B])((e,l) => cons(f(e), l))
+	    }
+	
+	    // Because the implementations are incremental, chains of transformations
+	    // will avoid fully instantiating the intermediate data structures. Let's 
+	    // look at a simplified program trace for the motivating example we 
+	    // started this chapter.
+	    def filter[B](f: A => Boolean) : Stream[B] = {
+	        import Stream._
+	        foldRight(empty[B])((e, l) => if (f(e)) l else empty)
+	    }
+	
+	    def append[B >:A](s: Stream[B]) : Stream[B] = 
+	        foldRight(s)((e,l) => Stream.cons(e,l))
+	
+	    def flatMap[B](f: A => Stream[B]) : Stream[B] = 
+	        foldRight(Stream.empty[B])((e,l) => f(e) append l)
+	
+	    def takeWhile(p : A => Boolean) : Stream[A] = {
+	        def process(s: Stream[A]) : Stream[A] = s uncons match {
+	            case Some((h, t)) if p(h) => Stream.cons(h, process(t))
+	            case _ => Stream() 
+	        }
+	        process(this)
+	    } 
+	
+	    def take(n: Int) : Stream[A] = uncons match {
+	        case Some((h,t)) if n > 0 => Stream.cons(h, t.take(n - 1))
+	        case _ => Stream.empty[A]
+	    }
+	
+	   def toList : List[A] = {
+	        var buf = ListBuffer[A]()
+	        
+	        // Two choices of we can implement the 'toList'
+	        // feature.
+	         def recurse2(l: Stream[A]) : List[A] = l uncons match {
+	             case Some((h, t)) => buf += h; recurse2(t) 
+	             case _ => buf toList
+	         }
+	         recurse2(this)
+	
+	        def recurse(s: Option[(A, Stream[A])]) : List[A] = uncons match {
+	            case Some((h, t)) => h :: t.toList
+	            case _ => Nil
+	        }
+	        recurse(uncons)
+	    } 
 
-  def uncons: Option[(A, Stream[A])]
-  def toList: List[A] = {
-    uncons.map {
-      case (hd, tl) => hd :: tl.toList
-    }.getOrElse(Nil)
-  }
+        // general function for building streams.
+        // Option is used to indicate when the Stream should be terminated, if at all.
+        // The function unfold is the most general Stream-building function. Notice how
+        // closely it mirrors the structure of the Stream data type.
 
-  def foldRight[B](z: => B)(f: (A, => B) => B) : B = 
-    uncons.map {
-        case (h,t) => f(h, t.foldRight(z)(f))
-    }.getOrElse(z)
-     
-  def exists(f: A => Boolean) : Boolean = foldRight(false)((h,t) => f(h) || t)
-  def forall(f: A => Boolean) : Boolean = foldRight(true)((h, t) => f(h) && t)
+        // while a recursive function consumes data and eventually terminates, a 
+        // corecursive function produces data and coterminates.
+        // We say that such a function is productive, which just means that we can always
+        // evaluate more of the result in a finite amount of time. Corecursion is also 
+        // sometimes regarded as guarded recursion.
+        def unfold[A,S](z: S)(f: S => Option[(A, S)]) : Stream[A] =
+            f(z) match {
+                case Some((h, t)) => Stream.cons(h, unfold(t)(f))
+                case None => Stream()
+            }
 
-  def takeWhile2(f: A => Boolean) : Stream[A] = 
-    foldRight(Stream.empty[A])((h, t) => if (f(h)) Stream.cons(h, t.takeWhile2(f)) else Stream.empty[A])
+        def takeWhileViaUnfold(f: A => Boolean) : Stream[A] = 
+            unfold(this){
+                x => x.uncons match {
+                                    case Some((h, t)) if f(h) => Some((h,t))
+                                    case _ => None
+                    }
+            }
 
-  /*
-    uncons.map {
-        case (hd, tl) => if (f(hd)) {println("passed: " + hd); Stream.cons(hd, tl takeWhile2 f)} else Stream.empty[A]
-    }.getOrElse(Stream.empty[A])
-*/
-    //logical error somewhere --------> foldRight(Stream.empty[A])((h,t) => if (f(h)) Stream.cons(h, t) else Stream.empty[A] )
+        def zipWith[B,C](other: Stream[B])(f: (A,B) => C) : Stream[C] = 
+            unfold((this,other)){ 
+                case (l,r) => 
+                            (l.uncons, r.uncons) match {
+                                    case ( Some((h1,t1)), Some((h2, t2)) ) => Some(( f(h1,h2), (t1,t2) ))
+                                    case _ => None 
+                }
+            }
+        def takeViaUnfold(n: Int) : Stream[A] =
+            unfold((this,n)){ 
+                case(s,n) if n > 0 => s.uncons map { case (h,t) => (h, (t, n -1)) }
+                case _     => None
+            }
 
-    // The expression below doesn't work and it'll complain of variance issues
-    // The workaround is to include the type annotation in 'Stream.empty[A]' so 
-    // that the scalac compiler will infer that 'h' is of type 'A' and it works.
-    // Again, type inference works better in Scala with curried parameter lists.
-    // foldRight(Stream.empty)((h,t) => Stream.cons(h, t) )
+        def mapViaUnfold[B](f: A => B ) : Stream[B] = 
+            unfold(this)(_.uncons map { case (h,t) => (f(h),t) })
+	}
+	object Stream {
+	    def unfold[A,S](z: S)(f: S => Option[(A, S)]) : Stream[A] =
+            f(z) match {
+                case Some((h, t)) => cons(h, unfold(t)(f))
+                case None => Stream()
+            }
 
-  def map[B](f: A => B) : Stream[B] =
-    foldRight(Stream.empty[B])((h,t) => Stream.cons(f(h), t))
+	    def constant[A](a: A) : Stream[A] = 
+	        Stream.cons(a, constant(a))
 
-  def filter(f: A => Boolean): Stream[A] = takeWhile2(f)
-        
-  def ++(s2: Stream[A]) : Stream[A] = 
-    foldRight(s2)((h,t) => Stream.cons(h, t))
+        def constantViaUnfold[A](a: A) : Stream[A] = 
+            unfold(a)(_ => Some((a, a)))
 
-  def flatMap[B](f: A => Stream[B]): Stream[B] =
-    foldRight(Stream.empty[B])((h,t) => f(h) ++ t)
+	    def from(n: Int) : Stream[Int] = cons(n, from(n + 1))
 
-  override def toString : String = {
-       var sb = new StringBuilder
-       sb.append("[")
-       this.toList.foreach{ i => sb.append(i + " ,") }
-       sb.append("]")
-       sb.toString
-  }
+        def fibs(a: Int,b:Int) : Stream[Int] = cons(a, fibs(a + b, a))
 
-  def take(n: Int) : Stream[A] = {
-    def takeIn(n : Int)(ss: Stream[A]): Stream[A] = {
-      if (n == 0) Stream.empty[A]
-      else 
-      ss.uncons.map {
-        case (h,t)  => Stream.cons(h, takeIn(n - 1)(t))
-      }.getOrElse(Stream.empty[A])
-    }
-    takeIn(n)(this)
-  }
+	    def empty[A] : Stream [A] = new Stream[A] { def uncons = None }
+	
+	    def cons[A](hd: => A , tl: => Stream[A]) : Stream[A] = 
+	        new Stream[A] { lazy val uncons = Some((hd, tl)) }
+	
+	    def apply[A](as: A*) : Stream[A] = 
+	        if(as.isEmpty) empty
+	        else cons(as.head, apply(as.tail: _*))
+	}
+
 }
-
-object Stream {
-  def empty[A]:Stream[A] = new Stream[A] {
-    def uncons = None
-  }
-
-  // Non-strict evaluation of the arguments
-  def cons[A](hd: => A, tl: => Stream[A]) : Stream[A] = 
-    new Stream[A] {
-        lazy val uncons = Some((hd, tl))
-    }
- 
-  def apply[A](as: A*): Stream[A] = 
-    if (as.isEmpty) empty
-    else cons(as.head, apply(as.tail: _*))
-
-  def constant[A](a: A) : Stream[A] = cons(a, constant(a))
-  def from(i: Int) : Stream[Int] = cons(i, from(i + 1))
-}
-
-
-object TestStream extends App {
-    val s = Stream(1,2,3,4,5,6,7,8,9,10)
-    println(s.map(_ % 2 == 0))
-    /*
-        You're actually dealing with this evaluation
-        f(1, f(2, f(3, f(4, f(5, f(6, f(7, f(8, f(9, f(10, Stream.empty[Boolean]))))))))))
-        
-        Here, the function 'f' is actually the body of 'map' which is
-
-        Stream.cons(f(h), t)
-
-        and the function 'f' is actually the function literal "_ % 2 == 0" often referred to 
-        as a predicate function
-
-        Evaluating the expression from right-to-left, you actually get a lazy list of bools
-    */
-    println(s.filter(_ % 2 == 0))
-
-    println(s ++ Stream(11,12,13))
-
-    println(s.flatMap(i => Stream(i*math.Pi)))
-
-    lazy val ones : Stream[Int] = Stream.cons(1, ones)
-    println("* " + ones.map(_ + 1).exists(_ % 2 == 0))
-    println("* " + ones.forall( _ != 1))
-    println("* " + ones.take(5) ) 
-    
-    println("* "+ ones.takeWhile2(_ == 1) ) 
-    
-    val r = Stream.from(5)
-    println("* " +r.take(10))
-}
-
