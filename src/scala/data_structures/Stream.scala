@@ -3,7 +3,7 @@ import scala.collection.mutable._
 // Laziness lets us separate the description of an expression from the evaluation of that expression. This gives 
 // us a powerful ability - we may choose to describe an larger expression than we need, then evaluate only a portion of it.
 // As an example, consider foldRight - we can implement this for Stream much like we did for List, but lazily
-object Chapter5 {
+object StreamObj {
 
 	trait Stream[+A] {
 	    def foldRight[B](z: => B)(f: (A, => B) => B) : B =

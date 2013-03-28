@@ -1,7 +1,7 @@
 // The key to recovering referential transparency is to make these state updates explicit.
 // That is, do not update the state as a side effect, but simply return the new state along
 // with the value we are generating.
-object Chapter6 {
+object StateObj {
 
     // All the functions we have written in the object RNG follows a particular
     // pattern and they are actually RNG => (A, RNG) where the input to the functions

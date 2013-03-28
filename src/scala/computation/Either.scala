@@ -7,7 +7,7 @@
 // is no value to be had. 
 import annotation._
 
-object Chapter4 {
+object EitherObj {
 
     // Either has only two cases, just like Option. The essential difference is that
     // both cases carry a value. The Either data type represents, in a very general way, values

@@ -7,7 +7,7 @@
 // examples, and gradually add complexity. In functional design, our goal is to achieve expressiveness not with
 // mountains of special cases, buy by building a simple and composable set of core data types and functions
 // 
-object Chapter7 {
+object ParallelObj {
     // The problem of using threads directly
     // =====================================
     // What of java.lang.Thread or Runnable? Let's take a look at their API signatures

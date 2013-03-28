@@ -1,6 +1,6 @@
 import annotation._
 
-object Chapter3 {
+object ListObj {
 // Variadic functions in Scala
 // -------------------------------
 // The function List.apply in the listing above is a variadic function,

@@ -1,5 +1,5 @@
 
-object Chapter4 {
+object OptionObj {
    
     // The general rule of thumb is that we use exceptions only if no
     // reasonable program would ever catch the exception - if for some
