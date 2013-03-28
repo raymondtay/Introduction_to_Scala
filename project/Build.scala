@@ -9,7 +9,7 @@ object IntroToScalaBuild extends Build {
         name := "Scala",
         version := "0.1-SNAPSHOT",
         scalaVersion := "2.10.0",
-        scalacOptions ++= Seq("-feature", "-deprecation", "-language:postfixOps"),
+        scalacOptions ++= Seq("-feature", "-deprecation", "-language:postfixOps","-language:higherKinds", "-language:implicitConversions"),
         resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases"
         ) )
 }
