@@ -11,7 +11,10 @@ import property_testing._
 trait Parsers[ParseError, Parser[+_]] { self =>
 
     // Returns a parser object that recognizes a single character
-    def char(c: Char) : Parser[Char]
+    def char(c: Char) : Parser[Char] = 
+        string(c.toString) map (_.charAt(0))
+
+    def succeed[A](a: A): Parser[A] = string("") map (_ => a)
 
     // similarly for the 'char' function, we want something to recognize strings
     implicit def string(s: String) : Parser[String]
@@ -37,6 +40,7 @@ trait Parsers[ParseError, Parser[+_]] { self =>
         def or[B>:A](p2: => Parser[B]) : Parser[B] = self.or(p,p2)
         def many[A] = self.many(p)
         def map[B](f: A => B ) = self.map(p)(f)
+        def **[B](p2: Parser[B]) = self.product(p, p2)
     }
 
     // Let's consider the parser that recognizes 0 or more repetitions of 
@@ -44,15 +48,28 @@ trait Parsers[ParseError, Parser[+_]] { self =>
     // combining 'map' we can write something like map(many(char('aaaa')))(_.length)
     def many[A](p: Parser[A]) : Parser[List[A]]
 
+    def product[A,B](p: Parser[A], p2: Parser[A]) : Parser[(A,B)]
+
     def map[A,B](a: Parser[A])(f: A => B) : Parser[B]
+
+    // this is REALLY odd. can't figure it out without understanding scala's type inference
+    def map2[A,B,C](p: Parser[A], p2: Parser[B])(f: (A,B) => C) : Parser[C] = map(product(p, p2))(f.tupled.asInstanceOf[((Any,Nothing)) => C])
+
+    def many1[A](p: Parser[A]) : Parser[List[A]] = map2(p, many(p))(_ :: _ ) 
 
     // the first law has emerged!
     // map(p)(id) == p
     // i.e. a parser when given an identity fn, will always produce the same parser
-   
+    
+  /* 
     object Laws { 
         def equal[A](p1: Parser[A], p2: Parser[A])(in: Gen[String]) : Prop = forAll(in)(s => run(p1)(s) == run(p2)(s))
 
         def mapLaw[A](p : Parser[A])(in: Gen[String]): Prop = equal(p, p.map(a => a))(in)
-    }
+    }*/
+
+    // this combinator should return the portion of the input string
+    // if the parser was successful
+    def slice[A](p: Parser[A]) : Parser[String] 
+
 }
