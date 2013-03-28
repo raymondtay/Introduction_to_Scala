@@ -43,7 +43,7 @@ object EitherObj {
             b1 <- b
         } yield f(a,b1)
 
-        def traverse[E,B](a: List[A])(f: A => Either[E,B]) : Either[E, List[B]] = a match {
+        def traverse[EE >: E,B](a: List[A])(f: A => Either[EE,B]) : Either[EE, List[B]] = a match {
             case Nil => Right(Nil)
             case h :: t => (f(h) map2 traverse(t)(f))(_::_)  
         }
