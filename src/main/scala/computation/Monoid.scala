@@ -22,3 +22,34 @@ trait Monoid[A] {
     def id : A
 }
 
+object Monoid {
+    val stringMonoid = new Monoid[String] {
+        def op(a: String, b: String) : String = a + b
+        def id : String = ""
+    }
+
+    val intAddition = new Monoid[Int] {
+        def op(a: Int, b: Int) : Int = a + b 
+        def id : Int = 1 // Sounds like it can be whatever integer is 
+    }
+
+    val intMultiplication = new Monoid[Int] {
+        def op(a: Int, b: Int) : Int = a * b
+        def id : Int = 1
+    }
+
+    val booleanOr = new Monoid[Boolean] {
+        def op(a: Boolean, b: Boolean) = a || b
+        def id : Boolean = true 
+    }
+
+    val booleanAnd = new Monoid[Boolean] {
+        def op(a: Boolean, b: Boolean) = a && b
+        def id : Boolean = true 
+    }
+    def listMonoid[A] = new Monoid[List[A]] {
+        def op(a: List[A], b : List[A]) : List[A] = a ++ b
+        def id : List[A] = Nil 
+    }
+}
+
