@@ -57,5 +57,16 @@ object Monoid {
         def op(a: Option[A], b: Option[A]) : Option[A] = a orElse b 
         def id : Option[A] = None
     }
+
+    /* 
+     A function having the same argument and return type is called a 
+     "endofunction".
+     */
+    def EndoMonoid[A] : Monoid[A => A] = new Monoid[A => A] {
+        def op(a: A => A, b: A => A) : A => A = a compose b
+        def id : A => A = zero
+        def zero[A](v: A) : A = v
+    }
+
 }
 
