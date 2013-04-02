@@ -30,12 +30,13 @@ object Monoid {
 
     val intAddition = new Monoid[Int] {
         def op(a: Int, b: Int) : Int = a + b 
-        def id : Int = 1 // Sounds like it can be whatever integer is 
+        def id : Int = 0 // Sounds like it can be whatever integer is 
     }
 
     val intMultiplication = new Monoid[Int] {
         def op(a: Int, b: Int) : Int = a * b
-        def id : Int = 1
+        def id : Int = 1 // compare with 'intAddition' and understand why the identity function is
+                         // evaluates differently. Hint: recall the definition of monoid
     }
 
     val booleanOr = new Monoid[Boolean] {
