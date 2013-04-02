@@ -52,5 +52,10 @@ object Monoid {
         def op(a: List[A], b : List[A]) : List[A] = a ++ b
         def id : List[A] = Nil 
     }
+
+    def optionMonoid[A] : Monoid[Option[A]] = new Monoid[Option[A]] {
+        def op(a: Option[A], b: Option[A]) : Option[A] = a orElse b 
+        def id : Option[A] = None
+    }
 }
 
