@@ -22,6 +22,14 @@ trait Monoid[A] {
     def id : A
 }
 
+// There is a slight terminology mismatch between programmers and 
+// mathematicians, when they talk about a type being a monoid as 
+// against having a monoid instances. As a programmer , it is natural
+// to think of the instance of type Monoid[A] as being a monoid. But that is not
+// accurate terminology. The monoid is actually two things - the type and the instance
+// When we say that a method accepts a value of type Monoid[A], we don't say that 
+// it takes a monoid but that it takes evidence that the type A is monoid.
+// 
 object Monoid {
     val stringMonoid = new Monoid[String] {
         def op(a: String, b: String) : String = a + b
