@@ -77,5 +77,11 @@ object Monoid {
         def zero[A](v: A) : A = v
     }
 
+    // Inserts spaces between words unless there is already one, and trims
+    // spaces off the ends of the result.
+    def wordsMonoid(s: String) : Monoid[String] = new Monoid[String] {
+        def op(s: String, s2: String) : String = s.trim() + " " + s2.trim()
+        def id : String = ""
+    }
 }
 

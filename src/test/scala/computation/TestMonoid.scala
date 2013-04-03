@@ -18,4 +18,11 @@ class TestMonoids extends FunSuite {
         import Monoid._
         assert(words.foldLeft(stringMonoid.id)(stringMonoid.op) == (("" + "a") + "b") + "hellothere")
     }
+
+    test("Test of wordsMonoid") {
+        import Monoid._
+        val empty = wordsMonoid("")
+        import empty._
+        assert(op("Hic", op("est ", "chorda ")) === "Hic est chorda") 
+    }
 }
