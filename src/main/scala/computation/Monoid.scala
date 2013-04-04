@@ -94,6 +94,7 @@ object Monoid {
     def foldMap[A,B](as: List[A], m: Monoid[B])(f: A => B) : B = as.map(f).foldLeft(m.id)(m.op) 
     def foldMap2[A,B](as: List[A], m: Monoid[B])(f: A => B) : B = as.foldLeft(m.id)((b,a) => m.op(f(a), b)) 
 
+    // This might/might not be easy for you to get it. You need ALL cylinders to be running to get this ;)
     def foldLeftViafoldMap[A,B](as: List[A])(z: B)(f: (B,A) => B) : B = foldMap2(as, EndoMonoid[B])(a=>b=>f(b,a))(z)
 }
 
