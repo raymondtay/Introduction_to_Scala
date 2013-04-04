@@ -83,5 +83,15 @@ object Monoid {
         def op(s: String, s2: String) : String = s.trim() + " " + s2.trim()
         def id : String = ""
     }
+
+    // Folds a list with a monoid
+    def concatenate[A](as: List[A], m : Monoid[A]) : A = as.foldLeft(m.id)(m.op) 
+
+    /*
+     Don't quite like this implmentation as it's traversing the list twice
+     Q: Can we do better? Sure! look at foldMap2
+    */
+    def foldMap[A,B](as: List[A], m: Monoid[B])(f: A => B) : B = as.map(f).foldLeft(m.id)(m.op) 
+    def foldMap2[A,B](as: List[A], m: Monoid[B])(f: A => B) : B = as.foldLeft(m.id)((b,a) => m.op(f(a), b)) 
 }
 

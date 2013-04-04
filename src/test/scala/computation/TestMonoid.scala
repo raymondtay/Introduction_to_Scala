@@ -25,4 +25,17 @@ class TestMonoids extends FunSuite {
         import empty._
         assert(op("Hic", op("est ", "chorda ")) === "Hic est chorda") 
     }
+
+    test("Concatenating a List of Ints with a Monoid[Int]") {
+        import Monoid._
+        val ints = (1 to 100000).toList
+        val result = concatenate(ints, intAddition) 
+        assert(result == 705082704)
+    }
+
+    test("Concatenating a List of Strings with Monoid[String]") {
+        import Monoid._
+        val words = List("hello", "there,", "i'm", "raymond")
+        assert(words.mkString === concatenate(words, stringMonoid))
+    }
 }
