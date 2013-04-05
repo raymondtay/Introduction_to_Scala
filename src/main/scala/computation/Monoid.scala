@@ -99,6 +99,10 @@ object Monoid {
 
     def wcMonoid = new Monoid[WC] {
         def op(w1 : WC, w2: WC) = (w1, w2) match {
+            case (Stub(""), Stub(a)) => Stub(a)
+            case (Stub(a), Stub("")) => Stub(a)
+            case (Stub(a), Part(lhs, words, rhs)) => Part(lhs + a, words, rhs)
+            case (Part(lhs, words, rhs), Stub(a)) => Part(lhs, words, rhs + a)
             case _ => id
         }
         def id = Stub("")
