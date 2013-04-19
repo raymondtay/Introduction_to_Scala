@@ -16,7 +16,6 @@ object IntroToScalaBuild extends Build {
         libraryDependencies ++= testDeps
         ) )
 }
-
 object ScalaTest {
     val testDeps = Seq("org.scalatest" % "scalatest_2.10" % "1.9.1" % "test")
 }
