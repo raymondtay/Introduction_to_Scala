@@ -109,7 +109,4 @@ object Monoid {
     }
 }
 
-sealed trait WC
-case class Stub(chars: String) extends WC
-case class Part(lhsStub: String, words: Int, rhsStub: String) extends WC
 
