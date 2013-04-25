@@ -18,6 +18,7 @@ object IntroToScalaBuild extends Build {
 }
 object TestingDeps {
     val scalaTest = "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test"
+    val junit4Interface = "com.novocode" % "junit-interface" % "0.10-M4" % "test"
     val junit4 = "junit" % "junit" % "4.11" % "test"
-    val testDeps = Seq(scalaTest, junit4)
+    val testDeps = Seq(scalaTest, junit4, junit4Interface)
 }
