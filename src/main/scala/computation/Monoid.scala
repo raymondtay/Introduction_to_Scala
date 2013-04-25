@@ -47,6 +47,12 @@ object Monoid {
         def id : Int = 1 // compare with 'intAddition' and understand why the identity function is
                          // evaluates differently. Hint: recall the definition of monoid
     }
+    
+    val lessThanOrEqual = new Monoid[Int] {
+        val ev = implicitly[math.Numeric.IntIsIntegral] 
+        def op(a: Int, b: Int) = ev.lteq(a, b ) match { case true => 1; case _ => 0 }
+        def id : Int = 0
+    }
 
     val booleanOr = new Monoid[Boolean] {
         def op(a: Boolean, b: Boolean) = a || b
@@ -114,11 +120,22 @@ object Monoid {
         def id = Stub("")
     }
 
-    // Divide-and-conquer which runs at O(n log n)
+    //
+    // Divide-and-conquer which runs at O(nlog(n))
+    //
     def foldMapV[A,B](v: IndexedSeq[A], m : Monoid[B])(f: A => B) : B = {
         val n = v.length
         val (l,r) = v.splitAt(n/2)
         m.op(foldMapV(l,m)(f),foldMapV(r,m)(f))
+    }
+
+    //
+    // Use foldMap to detect whether a given IndexedSeq[Int] is ordered.
+    // 
+    def isOrdered(as: IndexedSeq[Int]) : Boolean = {
+        // In the monoidic context, the concept of order between 2 elements
+        // will be assumed to be a[i] < b[i+1] for all i = {0 .. n}
+        sys.error("todo")
     }
 }
 
