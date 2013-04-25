@@ -16,13 +16,13 @@ class HasF {
 class Manipulator<T> {
     private T obj;
     public Manipulator(T x ) { obj = x; }
-    public void manipulate() { obj.f() ; }
+    //public void manipulate() { obj.f() ; }
 }
 
 class Manipulation {
     public static void main(String[] args) {
-        HasF f = new HasF();
-        Manipulator<HasF> m = new Manipulator<HasF>(f);
-        m.manipulate();
+        //HasF f = new HasF();
+        //Manipulator<HasF> m = new Manipulator<HasF>(f);
+        //m.manipulate();
     }
 }
