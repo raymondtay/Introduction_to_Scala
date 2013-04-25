@@ -2,7 +2,7 @@ import sbt._
 import sbt.Keys._
 
 object IntroToScalaBuild extends Build {
-    import ScalaTest._
+    import TestingDeps._
 
     lazy val demo = Project(
     id = "introduction-to-scala",
@@ -16,6 +16,8 @@ object IntroToScalaBuild extends Build {
         libraryDependencies ++= testDeps
         ) )
 }
-object ScalaTest {
-    val testDeps = Seq("org.scalatest" % "scalatest_2.10" % "1.9.1" % "test")
+object TestingDeps {
+    val scalaTest = "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test"
+    val junit4 = "junit" % "junit" % "4.11" % "test"
+    val testDeps = Seq(scalaTest, junit4)
 }
