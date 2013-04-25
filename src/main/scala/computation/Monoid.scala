@@ -109,4 +109,9 @@ object Monoid {
     }
 }
 
+// A stub is the simplest case, where we have not seen any complete words yet.
+// But a Part keeps the number of complete words we have seen so far, in words.
+sealed trait WC
+case class Stub(chars: String) extends WC
+case class Part(lhs: String, words : Int, rhs: String) extends WC
 
