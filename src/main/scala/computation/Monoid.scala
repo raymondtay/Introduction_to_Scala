@@ -97,6 +97,12 @@ object Monoid {
     // This might/might not be easy for you to get it. You need ALL cylinders to be running to get this ;)
     def foldLeftViafoldMap[A,B](as: List[A])(z: B)(f: (B,A) => B) : B = foldMap2(as, EndoMonoid[B])(a=>b=>f(b,a))(z)
 
+    // A stub is the simplest case, where we have not seen any complete words yet.
+    // But a Part keeps the number of complete words we have seen so far, in words.
+    sealed trait WC
+    case class Stub(chars: String) extends WC
+    case class Part(lhs: String, words : Int, rhs: String) extends WC
+
     def wcMonoid = new Monoid[WC] {
         def op(w1 : WC, w2: WC) = (w1, w2) match {
             case (Stub(""), Stub(a)) => Stub(a)
@@ -107,11 +113,13 @@ object Monoid {
         }
         def id = Stub("")
     }
+
+    // Divide-and-conquer which runs at O(n log n)
+    def foldMapV[A,B](v: IndexedSeq[A], m : Monoid[B])(f: A => B) : B = {
+        val n = v.length
+        val (l,r) = v.splitAt(n/2)
+        m.op(foldMapV(l,m)(f),foldMapV(r,m)(f))
+    }
 }
 
-// A stub is the simplest case, where we have not seen any complete words yet.
-// But a Part keeps the number of complete words we have seen so far, in words.
-sealed trait WC
-case class Stub(chars: String) extends WC
-case class Part(lhs: String, words : Int, rhs: String) extends WC
 
