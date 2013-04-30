@@ -47,6 +47,11 @@ object Monoid {
         def id : Int = 1 // compare with 'intAddition' and understand why the identity function is
                          // evaluates differently. Hint: recall the definition of monoid
     }
+
+    def dual[A](m: Monoid[A]) = new Monoid[A] {
+        def op(a: A, b: A) = m.op(a, b)
+        def id : A = m.id
+    }
     
     val lessThanOrEqual = new Monoid[Int] {
         val ev = implicitly[math.Numeric.IntIsIntegral] 
