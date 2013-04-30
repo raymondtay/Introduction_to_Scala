@@ -7,6 +7,15 @@ import java.util.*;
 // of as variable assignment since the formal parameters are assigned the
 // actual arguments; but whatever.
 
+class Varargs {
+    public static <T> 
+    List<T> makeList(T... args) {
+        List<T> r = new ArrayList<T>();
+        for(T item: args) r.add(item);
+        return r;
+    }
+}
+
 class Person {}
 class Pet {}
 class New {
