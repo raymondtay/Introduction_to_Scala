@@ -54,6 +54,7 @@ object Monoid {
     }
     
     val lessThanOrEqual = new Monoid[Int] {
+
         val ev = implicitly[math.Numeric.IntIsIntegral] 
         def op(a: Int, b: Int) = ev.lteq(a, b ) match { case true => 1; case _ => 0 }
         def id : Int = 0
