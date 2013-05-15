@@ -25,3 +25,27 @@ trait Foldable[F[_]] {
     def concatenate[A](as: F[A])(m: Monoid[A]) : A = foldLeft(as)(m.id)(m.op)
 }
 
+sealed trait Tree[+A]
+case class Leaf[A](value: A) extends Tree[A]
+case class Branch[A](left: Tree[A], right: Tree[A]) extends Tree[A]
+
+object FoldableTree extends Foldable[Tree] {
+
+    // In Scala, argument evaluation is eager so we are going to eval all 
+    // sub-trees on the left before proceeding on the right in that order.
+    override def foldRight[A,B](ts: Tree[A])(z: B)(f: (A,B) => B) : B = ts match {
+        case Leaf(a) => f(a, z) 
+        case Branch(left, right) => foldRight(left)(foldRight(right)(z)(f))(f)
+    }
+
+    override def foldLeft[A,B](ts: Tree[A])(z: B)(f: (B, A) => B) : B = ts match {
+        case Leaf(a) => f(z, a)
+        case Branch(left, right) => foldLeft(left)(foldLeft(right)(z)(f))(f)
+    }
+
+    override def foldMap[A,B](ts: Tree[A])(f: A => B)(mb: Monoid[B]) : B = ts match {
+        case Leaf(a) => f(a)
+        case Branch(left, right) => mb.op( foldMap(left)(f)(mb), foldMap(right)(f)(mb) )
+    }
+}
+
