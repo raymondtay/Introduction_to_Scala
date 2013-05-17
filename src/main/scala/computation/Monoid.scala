@@ -48,6 +48,18 @@ object Monoid {
                          // evaluates differently. Hint: recall the definition of monoid
     }
 
+    def dual[A](m: Monoid[A]) = new Monoid[A] {
+        def op(a: A, b: A) = m.op(a, b)
+        def id : A = m.id
+    }
+    
+    val lessThanOrEqual = new Monoid[Int] {
+
+        val ev = implicitly[math.Numeric.IntIsIntegral] 
+        def op(a: Int, b: Int) = ev.lteq(a, b ) match { case true => 1; case _ => 0 }
+        def id : Int = 0
+    }
+
     val booleanOr = new Monoid[Boolean] {
         def op(a: Boolean, b: Boolean) = a || b
         def id : Boolean = true 
@@ -97,6 +109,12 @@ object Monoid {
     // This might/might not be easy for you to get it. You need ALL cylinders to be running to get this ;)
     def foldLeftViafoldMap[A,B](as: List[A])(z: B)(f: (B,A) => B) : B = foldMap2(as, EndoMonoid[B])(a=>b=>f(b,a))(z)
 
+    // A stub is the simplest case, where we have not seen any complete words yet.
+    // But a Part keeps the number of complete words we have seen so far, in words.
+    sealed trait WC
+    case class Stub(chars: String) extends WC
+    case class Part(lhs: String, words : Int, rhs: String) extends WC
+
     def wcMonoid = new Monoid[WC] {
         def op(w1 : WC, w2: WC) = (w1, w2) match {
             case (Stub(""), Stub(a)) => Stub(a)
@@ -107,9 +125,24 @@ object Monoid {
         }
         def id = Stub("")
     }
+
+    //
+    // Divide-and-conquer which runs at O(nlog(n))
+    //
+    def foldMapV[A,B](v: IndexedSeq[A], m : Monoid[B])(f: A => B) : B = {
+        val n = v.length
+        val (l,r) = v.splitAt(n/2)
+        m.op(foldMapV(l,m)(f),foldMapV(r,m)(f))
+    }
+
+    //
+    // Use foldMap to detect whether a given IndexedSeq[Int] is ordered.
+    // 
+    def isOrdered(as: IndexedSeq[Int]) : Boolean = {
+        // In the monoidic context, the concept of order between 2 elements
+        // will be assumed to be a[i] < b[i+1] for all i = {0 .. n}
+        sys.error("todo")
+    }
 }
 
-sealed trait WC
-case class Stub(chars: String) extends WC
-case class Part(lhsStub: String, words: Int, rhsStub: String) extends WC
 
