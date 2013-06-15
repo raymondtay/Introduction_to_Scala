@@ -1,11 +1,16 @@
 This repository serves as a dump of the stuff i'm 
 brainstorming for my talk to the Singapore developer
-community on "Introduction to Scala" 
+community on "Introduction to Scala" around GeekCampSg
+due to happen sometime in the 3rd Quarter of 2013.
+
+As places for topics are limited, the organizers would only 
+allow talks to happen when enough votes are met. So please
+go to http://geekcamp.sg to vote for the talk :)
 
 The idea is to introduce Scala to the developer community in Singapore
 and how it is both a practical and interesting programming language
-which should be in the arsenal of every developer who calls themselves
-functional programmers.
+which should be in the arsenal of every developer who practices functional 
+programming in Scala 
 
 I expect the presentation slides to be made available here
 or on my account on slideshare.net 
@@ -14,5 +19,5 @@ I expect the demo code to reside here too.
 
 
 Raymond Tay
-Mar 2013
+June 2013
 
