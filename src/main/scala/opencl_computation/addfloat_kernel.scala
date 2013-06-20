@@ -9,7 +9,7 @@ import org.bridj.Pointer._
 import java.lang.Math._ /* no import static here */
 
 class AddFloats_Kernel extends App {
-
+/*
     override def main(args: Array[String] ) = {
         val context: CLContext = JavaCL.createBestContext
         val queue: CLQueue = context.createDefaultQueue()
@@ -41,5 +41,5 @@ class AddFloats_Kernel extends App {
         for(i <- 0 to n)
           println(s"out[%d] = %d", i, outPtr.get(i))
     }
-
+*/
 }
