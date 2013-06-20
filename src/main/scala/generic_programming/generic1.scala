@@ -1,7 +1,7 @@
 package generic_programming
 
 // Reducing Code Duplication with Type Constructor Polymorphism
-
+/*
 // Listing 1 shows a Scala implementaiton of the trait Iterable[T]
 // It contains an abstract method filter and a convenience method 
 // 'remove'. Subclasses should implement filter so that it creates a
@@ -110,3 +110,4 @@ trait Iterable[T] {
   def flatMap[U](f: T => Container[U])(b: Buildable[Container]): Container[U] = flatMapTo[U, Container](f)(b)
 
 }
+*/
