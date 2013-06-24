@@ -1,5 +1,4 @@
 package generic_programming
-/*
 // Reducing Code Duplication with Type Constructor Polymorphism
 /*
 // Listing 1 shows a Scala implementaiton of the trait Iterable[T]
