@@ -143,6 +143,13 @@ object Monoid {
         // will be assumed to be a[i] < b[i+1] for all i = {0 .. n}
         sys.error("todo")
     }
+
+    // Monoids compose!! 
+    // this means, for example, that if types A and B are monoids, then the tuple
+    // type (A, B) is also a monoid (called their product)
+    //def productMonoid[A,B](a: Monoid[A], b: Monoid[B]) : Monoid[(A,B)] = 
+
+    //def coproductMonoid[A,B](a: Monoid[A], b: Monoid[B]): Monoid[Either[A,B]] = { }
 }
 
 
