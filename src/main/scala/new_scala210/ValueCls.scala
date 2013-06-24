@@ -1,3 +1,5 @@
+package new_scala210
+
 object ValueClass {
 	// Value classes are the latest addition to the Scala 2.10 language
 	// The purpose for their existence is to avoid runtime allocation of objects.
@@ -98,3 +100,29 @@ object ValueClass {
 	// … cannot be extended by another class.
 
 }
+
+object ValueClass_Demo2 {
+    // Value classes in Scala are prohibited from having state
+    // the following state declaration will fail at compile-time
+    import scala.util.Random._
+    var freeVar    : Long = _
+    var freeVarStr : StringBuffer = _
+
+    class StateVC(val a: Long) extends AnyVal {
+        // uncomment the following statement & recompile to see failure
+        //var state: StringBuffer = _
+    }
+
+    class ClosureVC_good(val a : Long) extends AnyVal {
+        // As a matter of fact, JVM will perform operand promotion/demotion
+        // i.e. implicit primitive widening or narrowing conversions
+        // so as long as you operate on primitive types, you'll avoid runtime allocation
+        // in this situation
+        def bindMe() : Long = {freeVar += (nextLong() + a); freeVar }
+    }
+
+    class ClosureVC_bad(val a : Long) extends AnyVal {
+        def biteMe() : String = freeVarStr.append(nextLong).toString + a
+    }
+}
+

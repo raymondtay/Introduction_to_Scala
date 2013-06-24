@@ -3,7 +3,7 @@ package new_scala210
 // There are two primary ways to interpolate scala strings
 // in 2.10 and they are the 's', 'f' and 'raw' interpolators
 
-object StringInterpolator {
+object StringInterpolator_Demo1 {
     // prepending s to any string literal allows the usage of 
     // variables directly in the string. 
     val name = "james"
@@ -33,7 +33,7 @@ object StringInterpolator {
     val keepNewLines = raw"This is a header.\nThis is a body.\n"
 }
 
-object AdvancedStringInterpolator {
+object StringInterpolator_Demo2 {
     // In Scala, all processed string literals of the form 
     // id"string content"
     // are transformed into a method call (id) on an instance of StringContext.
@@ -42,7 +42,21 @@ object AdvancedStringInterpolator {
     // method to StringContext.
     import util.parsing.json._
     implicit class JsonHelper(val sc: StringContext) extends AnyVal {
-        def json(args: Any*) : JSONObject = sys.error("TODO")
+        def json(args: Any*) : JSONObject =  {
+            val strings = sc.parts.iterator
+            val expressions = args.iterator
+            var buf = new StringBuffer(strings.next)
+            while(strings.hasNext) {
+                buf append expressions.next
+                buf append strings.next
+            }
+            println(s"buf: ${buf.toString}")
+            parseJson(buf)
+        }
+
+        def parseJson(b: StringBuffer) : JSONObject = {
+            new JSONObject(Map[String,Any]())
+        }
     }
 
     val name = "Raymond"
