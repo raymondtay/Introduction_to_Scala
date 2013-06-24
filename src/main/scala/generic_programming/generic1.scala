@@ -1,5 +1,5 @@
 package generic_programming
-
+/*
 // Reducing Code Duplication with Type Constructor Polymorphism
 
 // Listing 1 shows a Scala implementaiton of the trait Iterable[T]
@@ -39,7 +39,7 @@ trait Builder[Container[X], T] {
 trait Iterator[T] {
     def next(): T 
     def hasNext: Boolean
-    def foreach(op; T => Unit) : Unit = while(hasNext) op(next())
+    def foreach(op: T => Unit) : Unit = while(hasNext) op(next())
 }
 
 // The design continues to evolve till...
@@ -58,7 +58,7 @@ trait Buildable[Container[X]] {
 object OptionBuildable extends Buildable[Option] {
   def build[T] : Builder[Option, T] = new Builder[Option, T] {
         var res: Option[T] = None
-        def +=(el: T) = if(res.isEmpty) res = Some(e1)
+        def +=(el: T) = if(res.isEmpty) res = Some(el)
           else throw new UnsupportedOperationException(">1 elements")
         def finalize(): Option[T] = res
   }
@@ -95,7 +95,7 @@ trait Iterable[T] {
     }
   }
 
-  def flatMapTo[U, C[X]](f: T => Iterable[U[])(b: Buildable[C]) : C[U] = {
+  def flatMapTo[U, C[X]](f: T => Iterable[U])(b: Buildable[C]) : C[U] = {
     val buff = b.build[U]
     val elems = elements
 
@@ -109,4 +109,4 @@ trait Iterable[T] {
   def filter(p: T => Boolean)(b: Buildable[Container]): Container[T] = filterTo[Container](p)(b)
   def flatMap[U](f: T => Container[U])(b: Buildable[Container]): Container[U] = flatMapTo[U, Container](f)(b)
 
-}
+}*/
