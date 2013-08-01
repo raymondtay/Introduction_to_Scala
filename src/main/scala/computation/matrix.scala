@@ -47,7 +47,7 @@ object MatrixUtils {
    
     val computations = for {
       i <- 0 until a.rowRank
-      j <- 0 until b.rowRank
+      j <- 0 until b.colRank
     } yield threading.execute{ () => computeValue(i, j) }
 
     computations.foreach(_())
