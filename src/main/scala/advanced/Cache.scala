@@ -4,6 +4,8 @@ import math._
 import java.util.{HashMap => JHashMap}
 import java.util.concurrent.{ConcurrentHashMap => JConcurrentHashMap}
 import scala.concurrent._
+import scala.util._
+import duration._
 
 trait Computable[A,V] {
     def compute(arg: A) : Option[V]
@@ -43,13 +45,23 @@ class Memoizer2[A,V](computeFn: Computable[A,V]) extends Computable[A,V] {
 }
 
 class Memoizer3[A,V](computeFn : Computable[A,V]) extends Computable[A,V] {
-    val cache = new JConcurrentHashMap[A,Future[V]]()
+    val cache = new JConcurrentHashMap[A,Future[Option[V]]]()
     val c : Computable[A,V] = computeFn 
 
+    implicit val ec = ExecutionContext.Implicits.global
+
     def compute(arg: A) : Option[V] = {
-        val result : Future[V] = cache.get(arg)
-        result match {
-            case null => val computeR = c.compute(arg); Some(cache.put(arg, computeR.get))
+        val result : Future[Option[V]] = cache.get(arg)
+        result.value match {
+            case Some(Success(v)) => v
+            case _ => 
+                val f = future { c.compute(arg) } 
+                cache.put(arg, f) 
+                Await.ready(f, Duration.Inf)
+                f.value match { 
+                    case Some(Success(v)) => v 
+                    case _ => None
+                }
         }
     }   
 }
