@@ -56,7 +56,8 @@ class Memoizer3[A,V](computeFn : Computable[A,V]) extends Computable[A,V] {
             case Some(Success(v)) => v
             case _ => 
                 val f = future { c.compute(arg) } 
-                cache.put(arg, f) 
+                cache.put(arg, f)    // to prevent cache pollution, replace this call with the following one
+                //cache.putIfAbsent(arg, f) 
                 Await.ready(f, Duration.Inf)
                 f.value match { 
                     case Some(Success(v)) => v 
