@@ -6,5 +6,11 @@ object Partial1 {
         `curried` to convert a non-curried function
     */
     def partial1[A,B,C](a: A, f: (A, B) ⇒ C) : B ⇒ C = f.curried(a)
+
+    def curry[A,B,C](f: (A, B) ⇒ C) : A ⇒ B ⇒ C = f.curried
+
+    def uncurry[A,B,C](f: A ⇒ B ⇒ C) : (A,B) ⇒ C = Function.uncurried(f)
+
+    def compose[A,B,C](f: B ⇒ C, g: A ⇒ B) : A ⇒ C = g andThen f
 }
 
