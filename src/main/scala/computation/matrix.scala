@@ -24,7 +24,7 @@ class Matrix(private val repr: Array[Array[Double]]) {
 // return the same value as the passed in function, but could block the current thread until
 // the function is calculated on its desired thread.
 trait ThreadStrategy {
-  def execute[A](f: Function0[A]) : Function0[A]
+  def execute[A](f: () ⇒ A) : () ⇒ A
 }
 
 object SameThreadStrategy extends ThreadStrategy {
@@ -61,7 +61,7 @@ import java.util.concurrent.{Callable, Executors}
 
 object ThreadPoolStrategy extends ThreadStrategy {
   val pool = Executors.newFixedThreadPool(java.lang.Runtime.getRuntime.availableProcessors)
-  def execute[A](f : Function0[A]) = {
+  def execute[A](f : () ⇒ A) = {
     val future = pool.submit(new Callable[A] {
         def call : A = {
           Console.println("Executing function on thread: " + Thread.currentThread.getId)
