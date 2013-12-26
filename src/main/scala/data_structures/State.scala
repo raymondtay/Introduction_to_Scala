@@ -21,7 +21,10 @@ object StateObj {
     // leave it unmodified and instead return a new state as shown below.
     trait RNG {
         def nextInt : ( Int, RNG) 
-  
+
+        // generate pairs of `A` and `B` 
+        def both[A,B](ra: Rand[A], rb: Rand[B]) : Rand[(A,B)] = map2(ra, rb)((_, _))
+ 
         def flatMap[A,B](f: Rand[A])(g: A => Rand[B]) : Rand[B] = 
             rng => {
                     val (i, r) = f(rng)
