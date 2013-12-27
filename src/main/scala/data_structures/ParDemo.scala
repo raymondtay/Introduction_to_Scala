@@ -24,7 +24,11 @@ object Par2 {
         def cancel(evenIfRunning: Boolean) : Boolean = false
     }
 
-    def map[A,B](a: Par[A])(f: A ⇒ B) : Par[B] = (es: ExecutorService) ⇒ UnitFuture(f(a(es).get))
+    // The following `map` function can be lifted to the `map` function definition below
+    // following our example with `sortPar`
+    // def map[A,B](a: Par[A])(f: A ⇒ B) : Par[B] = (es: ExecutorService) ⇒ UnitFuture(f(a(es).get))
+
+    def map[A,B](a: Par[A])(f: A ⇒ B) : Par[B] = map2(a, unit(()))( (a, _) ⇒ f(a) )
 
     // Does not respect timeouts and to do that, we need a new implementation
     // that DOES respect timeout see `map2t`
@@ -49,6 +53,22 @@ object Par2 {
         es.submit(new Callable[A] { def call = a(es).get } ) 
 
     def asyncF[A,B](f: A ⇒ B): A ⇒ Par[B] = (a: A) ⇒ unit(f(a))
+
+    // With the rewrite of the `map` function a few lines above this, we can 
+    // now lift `sortPar` to the following expression instead of our original :
+    // def sortPar(parList: Par[List[Int]]) : Par[List[Int]] = map2( parList, unit(()) )( (a, _) ⇒ a.sorted ) 
+    def sortPar(parList: Par[List[Int]]) : Par[List[Int]] = map(parList)(_.sorted ) 
+
+    def flatMap[A,B](a: Par[A])(f: A ⇒ List[B]) : Par[List[B]] = map(a)(f)
+
+    def parMap[A,B](l: List[A])(f: A ⇒ B) : Par[List[B]] = fork {
+        sequence(l.map(asyncF(f)))
+    }
+
+    def parFilter[A](l : List[A])(f: A ⇒ Boolean) : Par[List[A]] = fork {
+        map(sequence(l.map(asyncF((a:A) ⇒ if (f(a)) List(a) else List()))))(_.flatten)
+    }
+    def sequence[A](l: List[Par[A]]) : Par[List[A]] = l.foldRight[Par[List[A]]](unit(List()))((h,t) ⇒ map2(h, t)(_ :: _))
 
     /* //-- 1 --/
     trait Par[A] {
