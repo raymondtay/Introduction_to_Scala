@@ -2,6 +2,11 @@ object Par2 {
     import java.util.concurrent.{Callable,ExecutorService,Future,TimeUnit}
     import scala.collection.JavaConversions._
 
+    class ParOps[A](p: Par[A]) {
+        def map2[B,C](b: Par[B])(f: (A, B) ⇒ C) = Par2.map2(p, b)(f) 
+        def map[B](f: A ⇒ B) : Par[B] = Par2.map(p)(f)
+    }
+
     // Forgoing the type definition in // -- 1 -- // 
     // we could delay the computation by using an ExecutorService 
     // which returns a Future[Something]; it has another benefit which is the
@@ -18,6 +23,8 @@ object Par2 {
         def isCancelled = false
         def cancel(evenIfRunning: Boolean) : Boolean = false
     }
+
+    def map[A,B](a: Par[A])(f: A ⇒ B) : Par[B] = (es: ExecutorService) ⇒ UnitFuture(f(a(es).get))
 
     // Does not respect timeouts and to do that, we need a new implementation
     // that DOES respect timeout see `map2t`
@@ -41,7 +48,7 @@ object Par2 {
     def fork[A](a: ⇒ Par[A]) : Par[A] = (es: ExecutorService) ⇒ 
         es.submit(new Callable[A] { def call = a(es).get } ) 
 
-
+    def asyncF[A,B](f: A ⇒ B): A ⇒ Par[B] = (a: A) ⇒ unit(f(a))
 
     /* //-- 1 --/
     trait Par[A] {
