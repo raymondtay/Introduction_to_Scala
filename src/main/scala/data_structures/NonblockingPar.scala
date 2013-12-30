@@ -51,4 +51,3 @@ object Parallel2 {
     def eval(es: ExecutorService)(r: ⇒ Unit) : Unit = 
         es.submit(new Callable[Unit] { def call = r })
 }
-
