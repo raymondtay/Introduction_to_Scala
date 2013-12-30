@@ -30,6 +30,13 @@ object Parallel2 {
             }
         }
 
+    def chooser[A,B](par: Par[A])(choices: A ⇒ Par[B]) : Par[B] = es ⇒ {
+        import scala.concurrent.SyncVar
+        val item = new SyncVar[Par[B]]
+        eval(es)(par(es){ k ⇒ item.put(choices(k)) })
+        item.get(es)
+    }
+
     def choiceN[A](n: Par[Int])(choices: List[Par[A]]): Par[A] = 
         es ⇒ {
             var index = 0 // is this cheating w.r.t fp paradigm?
@@ -51,3 +58,19 @@ object Parallel2 {
     def eval(es: ExecutorService)(r: ⇒ Unit) : Unit = 
         es.submit(new Callable[Unit] { def call = r })
 }
+// SIDEBAR:
+// Recognizing the expressiveness and limitations of an algebra
+// As you practice more functional programming, one of the skills you will
+// develop is the ability to recognize what funcitons are expressible from
+// an algebra, and what the limitations of that algebra are. For instance, in the 
+// above example, it may not have been obvious at first that afunciton
+// like `choose` could not be expressed purely in terms of `map`, `map2` and unit 
+// and it may not have been obvious that `choose` was just a special case of `flatMap`
+// Over time, observations like this will come very quickly, and you will also get 
+// better at spotting how to modify your algebra to make some needed combinator expressible
+// These skills will be helpful for all of your API Design work.
+// As a practical consideration, being able to reduce an API to a minmal set of primitvie funcitons
+// is extremely useful. As we noted earlier when we implmented parMap in terms of existing 
+// combinators, it's frequently the case that primitive combinators encapsulate some rather
+// tricky logic, and reusing them means we don't have to duplicate this logic.
+
