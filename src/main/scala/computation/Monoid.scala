@@ -126,6 +126,16 @@ object Monoid {
         def id = Stub("")
     }
 
+    import data_structures.Par2._
+    def par[A](m: Monoid[A]) : Monoid[Par[A]] = new Monoid[Par[A]] {
+        def op(a: Par[A], b: Par[A]) = map2(a,b)(m.op)
+        def id : Par[A] = unit(m.id)
+    }
+
+    // Think about what `parFoldMap` needs to do before you implement 
+    // something that type checks but doesn't fulfil its requirement
+    def parFoldMap[A,B](as: IndexedSeq[A], m: Monoid[B])(f: A ⇒ B ): Par[B] =
+        flatMap( parMap(as.toList)(f) ) { bs ⇒ foldMapV(bs.toIndexedSeq, par(m))(b ⇒ async(b)) }
     //
     // Divide-and-conquer which runs at O(nlog(n))
     //

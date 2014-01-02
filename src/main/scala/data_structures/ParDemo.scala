@@ -1,3 +1,4 @@
+package data_structures
 object Par2 {
     import java.util.concurrent.{Callable,ExecutorService,Future,TimeUnit}
     import scala.collection.JavaConversions._
@@ -30,6 +31,13 @@ object Par2 {
 
     def map[A,B](a: Par[A])(f: A ⇒ B) : Par[B] = map2(a, unit(()))( (a, _) ⇒ f(a) )
 
+    def flatMap[A,B](a: Par[A])(f: A ⇒ Par[B]) : Par[B] =
+        es ⇒ f((run(es)(a)).get)(es)
+
+    def parMap[A,B](l: List[A])(f: A ⇒ B) : Par[List[B]] = fork {
+        sequence(l.map(asyncF(f)))
+    }
+
     // Does not respect timeouts and to do that, we need a new implementation
     // that DOES respect timeout see `map2t`
     def map2[A,B,C](a: Par[A], b: Par[B])(f: (A, B) ⇒ C) : Par[C] = 
@@ -52,6 +60,8 @@ object Par2 {
     def fork[A](a: ⇒ Par[A]) : Par[A] = (es: ExecutorService) ⇒ 
         es.submit(new Callable[A] { def call = a(es).get } ) 
 
+    def async[A](f: ⇒ A) : Par[A] = fork(unit(f))
+
     def asyncF[A,B](f: A ⇒ B): A ⇒ Par[B] = (a: A) ⇒ unit(f(a))
 
     // With the rewrite of the `map` function a few lines above this, we can 
@@ -59,11 +69,6 @@ object Par2 {
     // def sortPar(parList: Par[List[Int]]) : Par[List[Int]] = map2( parList, unit(()) )( (a, _) ⇒ a.sorted ) 
     def sortPar(parList: Par[List[Int]]) : Par[List[Int]] = map(parList)(_.sorted ) 
 
-    def flatMap[A,B](a: Par[A])(f: A ⇒ List[B]) : Par[List[B]] = map(a)(f)
-
-    def parMap[A,B](l: List[A])(f: A ⇒ B) : Par[List[B]] = fork {
-        sequence(l.map(asyncF(f)))
-    }
 
     def parFilter[A](l : List[A])(f: A ⇒ Boolean) : Par[List[A]] = fork {
         map(sequence(l.map(asyncF((a:A) ⇒ if (f(a)) List(a) else List()))))(_.flatten)
