@@ -157,9 +157,24 @@ object Monoid {
     // Monoids compose!! 
     // this means, for example, that if types A and B are monoids, then the tuple
     // type (A, B) is also a monoid (called their product)
-    //def productMonoid[A,B](a: Monoid[A], b: Monoid[B]) : Monoid[(A,B)] = 
+    def productMonoid[A,B](a: Monoid[A], b: Monoid[B]) : Monoid[(A,B)] = 
+        new Monoid[(A,B)] {
+            def op(a1: (A,B), a2: (A,B)) = (a.op(a1._1, a2._1), b.op(a1._2, a2._2))
+            def id : (A, B) = (a.id, b.id)
+        }
 
     //def coproductMonoid[A,B](a: Monoid[A], b: Monoid[B]): Monoid[Either[A,B]] = { }
+
+    // Some data structures, like a `Map`, have interesting monoids as long as their value
+    // types are monoids. E.g. in `Map` 
+    def mapMergeMonoid[K,V](mv: Monoid[V]) : Monoid[Map[K,V]] = 
+        new Monoid[Map[K,V]] {
+            def op(m1: Map[K,V], m2: Map[K,V]) = m1.map { case (k,v) ⇒ k → mv.op(v, m2.get(k) getOrElse mv.id) }
+            def id : Map[K,V] = Map()
+        }
+    // Using the above defined monoidic definition, we can assemble complex monoids.
+    val M: Monoid[Map[String, Map[String,Int]]] = mapMergeMonoid(mapMergeMonoid(intAddition))
+
 }
 
 

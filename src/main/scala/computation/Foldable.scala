@@ -23,11 +23,26 @@ trait Foldable[F[_]] {
     def foldLeft[A,B](as: F[A])(z:B)(f: (B,A) => B) : B = foldMap(as)(a => (b:B) => f(b,a))(dual(EndoMonoid[B]))(z)
     def foldMap[A,B](as: F[A])(f: A => B)(mb: Monoid[B]) : B = foldRight(as)(mb.id)((a,b) => mb.op(f(a), b))
     def concatenate[A](as: F[A])(m: Monoid[A]) : A = foldLeft(as)(m.id)(m.op)
+    def toList[A](f: F[A]) : List[A] = foldLeft(f)(List.empty[A])((as,a) ⇒ as :+ a)
 }
 
 sealed trait Tree[+A]
 case class Leaf[A](value: A) extends Tree[A]
 case class Branch[A](left: Tree[A], right: Tree[A]) extends Tree[A]
+
+object FoldableList extends Foldable[List] {
+    override def foldRight[A,B](as: List[A])(z: B)(f: (A, B) ⇒ B): B = as.foldRight(z)(f)
+    override def foldLeft[A,B](as: List[A])(z: B)(f: (B, A) ⇒ B) : B = as.foldLeft(z)(f)
+    override def foldMap[A,B](as: List[A])(f: A ⇒ B)(m: Monoid[B]) : B = foldRight(as)(m.id)((a,b) => m.op(f(a), b))
+    override def concatenate[A](as: List[A])(m: Monoid[A]) : A = foldLeft(as)(m.id)(m.op)
+}
+
+object FoldableOption extends Foldable[Option] {
+    override def foldRight[A,B](as: Option[A])(z:B)(f: (A, B) ⇒ B) : B = as.foldRight(z)(f)
+    override def foldLeft[A,B](as: Option[A])(z:B)(f: (B, A) ⇒ B) : B = as.foldLeft(z)(f)
+    override def foldMap[A,B](as: Option[A])(f: A ⇒ B)(m: Monoid[B]) : B = foldRight(as)(m.id)((a,b) => m.op(f(a), b))
+    override def concatenate[A](as: Option[A])(m: Monoid[A]) : A = foldLeft(as)(m.id)(m.op)
+}
 
 object FoldableTree extends Foldable[Tree] {
 
