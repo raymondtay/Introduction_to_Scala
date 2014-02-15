@@ -75,3 +75,48 @@ trait Monad2[F[_]] extends Applicative[F] {
         flatMap(fa)(a ⇒ map(fb)(b ⇒ f(a,b)))
 }
 
+sealed trait Validation[+E, +A]
+
+case class Failure[E](head: E, tail: List[E]) extends Validation[E, Nothing]
+case class Success[A](a: A ) extends Validation[Nothing, A]
+
+object Applicative {
+
+    // Applicative instance of `Validation`...but it's not 
+    // complete yet.
+    def validationApplicative[E] = 
+        new Applicative[({type f[x] = Validation[E,x]})#f] {
+            def unit[A](a: ⇒ A): Validation[E,A] = 
+                try { Success(a) } catch { case e : E ⇒ Failure(e, List[E]()) } // this is actually wrong, can u see why? think in terms of when E is actually a Throwable or any of its subtypes...
+            def flatMap[A, B](fa: Validation[E,A])(f: A ⇒ Validation[E,B]): Validation[E,B] = 
+                fa match {
+                    case Success(v) ⇒ f(v)
+                    //case Failure(h, t) ⇒ f(h)  // what happens here??? need to figure this out 
+                }
+        }
+
+    import WebFormUtils._
+    def validWebForm(name: String, birthdate: String, phoneNumber: String) : Validation[String, WebForm] = validationApplicative[String].map3(validName(name), validBirthdate(birthdate), validPhone(phoneNumber))(WebForm(_,_,_))
+}
+
+object WebFormUtils {
+	import java.util.Date
+    case class WebForm(name: String, birthdate: Date, phoneNumber : String) 
+	def validName(name: String): Validation[String, String] =
+	  if (name != "")
+	       Success(name)
+	  else Failure("Name cannot be empty", List())
+	def validBirthdate(birthdate: String): Validation[String, Date] =
+	  try {
+	    import java.text._
+	    Success((new SimpleDateFormat("yyyy-MM-dd")).parse(birthdate))
+	  } catch {
+	    case e : Exception ⇒ 
+	    Failure("Birthdate must be in the form yyyy-MM-dd", List())
+	  }
+	def validPhone(phoneNumber: String): Validation[String, String] =
+	  if (phoneNumber.matches("[0-9]{10}"))
+	       Success(phoneNumber)
+	  else Failure("Phone number must be 10 digits", List())
+}
+
