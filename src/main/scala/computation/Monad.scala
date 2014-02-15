@@ -3,7 +3,9 @@
     combinators, satisfying the laws of associativity and identity.
 */
 trait Monad[F[_]] extends Functor[F] {
-    // follow the types
+    // Follow the types
+    // `map2` here is implemented on two other primitives namely `flatMap` and `map`
+    // 
     def map2[A,B,C](fa: F[A], fb: F[B])(f: (A, B) ⇒ C) : F[C] = flatMap(fa)(a ⇒ map(fb)(b ⇒ f(a,b)))
 
     def flatMap[A,B](fa: F[A])(f: A ⇒ F[B]) : F[B]
@@ -52,6 +54,7 @@ object IntStateMonad extends Monad[({type IntState[A] = State[Int, A]})#IntState
     def flatMap[A,B](sa: State[Int, A])(f: A ⇒ State[Int, B]) = sa flatMap f
 }
 
+
 object Monad {
     val optionM = 
         new Monad[Option] {
@@ -69,6 +72,27 @@ object Monad {
             def flatMap[A,B](ia: Id[A])(f: A ⇒ Id[B]) = ia.flatMap(f)
             def unit[A](a: ⇒ A) : Id[A] = Id(a)
         }
+
+    def stateMonad[S] = new Monad[({type u[x] = State[S,x]})#u] {
+        def unit[A](a: ⇒ A): State[S,A] = State(s ⇒ (a, s))
+        def flatMap[A,B](s: State[S,A])(f: A ⇒ State[S,B]) = s flatMap f
+    }
+
+    // facade
+    def getState[S] : State[S,S] = State.get
+
+    // facade
+    def setState[S](s: ⇒ S): State[S,Unit] = State.set(s)
+
+    val F = stateMonad[Int]
+    def zipWithIndex[A](as: List[A]): List[(Int, A)] = 
+        as.foldLeft(F.unit(List[(Int,A)]()))( (acc, a ) ⇒ 
+            for {
+                n ← getState
+                aa ← acc
+                _ ← setState(n + 1)
+            } yield (n, a) :: aa).run(0)._1.reverse // this is asymoptotically faster than appending to the list in the loop.
+
 }
 
 case class Reader[R,A](run: R ⇒ A)
