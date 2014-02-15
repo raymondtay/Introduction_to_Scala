@@ -14,7 +14,10 @@ trait Monad[F[_]] extends Functor[F] {
 
     def map[A,B](fa: F[A])(f: A ⇒ B) : F[B] = flatMap(fa)(a ⇒ unit(f(a))) 
 
-    def sequence[A](lma: List[F[A]]): F[List[A]] = lma.foldRight(unit(List[A]()))((fa, fas) ⇒ map2(fa, fas)(_ :: _))
+    // allow `sequence` to be implemented interms of `traverse`
+    def sequence[A](lma: List[F[A]]): F[List[A]] = traverse(lma)(ma ⇒ ma)
+
+    //def sequence[A](lma: List[F[A]]): F[List[A]] = lma.foldRight(unit(List[A]()))((fa, fas) ⇒ map2(fa, fas)(_ :: _))
 
     // `replicateM` is meant to fill a container with `ma` and its thread-safe owing to GenSeq's impl of `fill`
     def replicateM[A](n: Int, ma: F[A]): F[List[A]] = sequence(List.fill(n)(ma))
