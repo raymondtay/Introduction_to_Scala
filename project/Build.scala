@@ -11,7 +11,7 @@ object IntroToScalaBuild extends Build {
     settings = Project.defaultSettings ++ Seq(
         name := "Scala",
         version := "0.1-SNAPSHOT",
-        scalaVersion := "2.10.0",
+        scalaVersion := "2.10.3",
         scalacOptions ++= Seq("-feature", "-deprecation", "-language:postfixOps","-language:higherKinds", "-language:implicitConversions"),
         resolvers ++= Seq("snapshots", "releases").map(Resolver.sonatypeRepo),
         resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
