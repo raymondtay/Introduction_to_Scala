@@ -4,6 +4,7 @@ import sbt.Keys._
 object IntroToScalaBuild extends Build {
     import OpenCL._
     import TestingDeps._
+    import AkkaDeps._
 
     lazy val demo = Project(
     id = "introduction-to-scala",
@@ -17,7 +18,8 @@ object IntroToScalaBuild extends Build {
         resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
         scalacOptions in Test ++= Seq("-Yrangepos"),
         libraryDependencies ++= testDeps,
-        libraryDependencies ++= Seq(jocl)
+        libraryDependencies ++= Seq(jocl),
+        libraryDependencies ++= Seq(persistence)
         ) )
 }
 object TestingDeps {
@@ -26,6 +28,10 @@ object TestingDeps {
     val junit4 = "junit" % "junit" % "4.11" % "test"
     val specs2 = "org.specs2" %% "specs2" % "2.3.10" % "test"
     val testDeps = Seq(specs2, scalaTest, junit4, junit4Interface)
+}
+
+object AkkaDeps {
+    val persistence = "com.typesafe.akka" %% "akka-persistence-experimental" % "2.3.1"
 }
 
 object OpenCL {
