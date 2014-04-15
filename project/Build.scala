@@ -19,6 +19,8 @@ object IntroToScalaBuild extends Build {
         scalacOptions in Test ++= Seq("-Yrangepos"),
         libraryDependencies ++= testDeps,
         libraryDependencies ++= Seq(jocl),
+        libraryDependencies ++= Seq(actors),
+        libraryDependencies ++= Seq(actortestkit),
         libraryDependencies ++= Seq(persistence)
         ) )
 }
@@ -32,6 +34,8 @@ object TestingDeps {
 
 object AkkaDeps {
     val persistence = "com.typesafe.akka" %% "akka-persistence-experimental" % "2.3.1"
+    val actors = "com.typesafe.akka" %% "akka-actor" % "2.3.2"
+    val actortestkit = "com.typesafe.akka" %% "akka-testkit" % "2.3.2" % "test"
 }
 
 object OpenCL {
