@@ -3,27 +3,27 @@ import akka.routing._
 import akka.routing.ConsistentHashingPool
 import akka.routing.ConsistentHashingRouter._
 
-class Cache extends Actor with ActorLogging {
-    var cache = Map.empty[String,String]
+class Cache[K,V] extends Actor with ActorLogging {
+    var cache = Map.empty[K,V]
 
     def receive = {
-        case Entry(k, v) => 
+        case Entry((k:K), (v:V)) => 
             log.info("Entry added")
             cache += (k -> v)
-        case Get(k) => 
+        case Get((k:K)) => 
             log.info(s"entry returned is ${cache.get(k)}")
             sender ! cache.get(k)
-        case Evict(k) => 
+        case Evict((k:K)) => 
             log.info(s"entry evicted is ${k}")
             cache -= k
     }
 }
 
-case class Evict(k:String)
-case class Get(k:String) extends ConsistentHashable {
+case class Evict[K](k:K)
+case class Get[K](k:K) extends ConsistentHashable {
     override def consistentHashKey = k
 }
-case class Entry(k: String, v: String)
+case class Entry[K,V](k: K, v: V)
 
 object TestConsistentHashCache extends App {
     def hashMapping : ConsistentHashMapping = {
@@ -31,7 +31,7 @@ object TestConsistentHashCache extends App {
     }
 
     val a = ActorSystem("test")
-    val r = a.actorOf(ConsistentHashingPool(10, hashMapping = hashMapping).props(Props[Cache]), name = "cache")
+    val r = a.actorOf(ConsistentHashingPool(10, hashMapping = hashMapping).props(Props(new Cache[String,String])), name = "cache")
 
     r ! ConsistentHashableEnvelope(Entry("a", "aaa"), hashKey = "a")
     r ! ConsistentHashableEnvelope(Entry("b", "baa"), hashKey = "b")
