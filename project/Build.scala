@@ -20,6 +20,7 @@ object IntroToScalaBuild extends Build {
         libraryDependencies ++= testDeps,
         libraryDependencies ++= Seq(jocl),
         libraryDependencies ++= Seq(actors),
+        libraryDependencies ++= Seq(scalaReflect),
         libraryDependencies ++= Seq(actortestkit),
         libraryDependencies ++= Seq(persistence)
         ) )
@@ -36,6 +37,7 @@ object AkkaDeps {
     val persistence = "com.typesafe.akka" %% "akka-persistence-experimental" % "2.3.1"
     val actors = "com.typesafe.akka" %% "akka-actor" % "2.3.2"
     val actortestkit = "com.typesafe.akka" %% "akka-testkit" % "2.3.2" % "test"
+    val scalaReflect =  "org.scala-lang" % "scala-reflect" % "2.10.3"
 }
 
 object OpenCL {
