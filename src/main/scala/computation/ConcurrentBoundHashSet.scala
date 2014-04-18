@@ -40,7 +40,7 @@ object ConcurrentAccessBoundedHashSet extends App {
     val futures = (1 to 1000) map { v => Future { if (v % 2 == 0) set.add(v) else set.remove(v+1) } } 
 
     val computations = Future.sequence(futures)
-    Await.result(computations, Duration.Inf)
+    concurrent.Await.result(computations, Duration.Inf)
     println(s"Size of set is ${set.size()}")
 }
  
