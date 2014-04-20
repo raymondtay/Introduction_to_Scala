@@ -1,4 +1,5 @@
 import annotation._
+import scala.language._
 
 object ListObj {
 // Variadic functions in Scala
@@ -118,7 +119,9 @@ object List {
         case (Nil, _) => Nil
         case (_, Nil) => Nil
         case (::(h:Int, t), ::(h2:Int, t2)) => ::(f(h,h2), zip(t, t2)(f))
+        case (::(_,_), ::(_,_)) => Nil
     }
+}
 }
 
 // Writing purely functional data structures that support different operations efficiently is all
@@ -134,25 +137,37 @@ object List {
 // fine, and the decision to do so is approached much liek any other decision
 // about what the public API of a data type should be.
 
-sealed trait Tree[+A]
-case class Leaf[A](value: A) extends Tree[A] 
-case class Branch[A](left: Tree[A], right: Tree[A]) extends Tree[A]
-object Tree {
-    def size(t: Tree[Int]) : Int = t match {
-        case Leaf(a) => 1
-        case Branch(lhs, rhs) => 1 + size(lhs) + size(rhs)
-    }
-    def maximum(t: Tree[Int]) : Int = t match {
-        case Leaf(n) => n
-        case Branch(lhs, rhs) => maximum(lhs) max maximum(rhs)
-    }
-    def depth[A](t: Tree[A]) : Int = t match {
-        case Branch(lhs, rhs) => 1 + (depth(lhs) max depth(rhs))
-        case Leaf(_) => 1
-    }
-    def map[A,B](t: Tree[A])(f: A => B) : Tree[B] = t match {
-        case Leaf(a) => Leaf(f(a))
-        case Branch(lhs, rhs) => Branch(map(lhs)(f) , map(rhs)(f))
-    }
+object OptionalTree {
+	sealed trait Tree[+A]
+	case class Leaf[A](value: A) extends Tree[A] 
+	case class Branch[A](left: Option[Tree[A]], right: Option[Tree[A]]) extends Tree[A]
+	object Tree {
+	    // Overkill? probably...but its an exercise of using type-parameters to capture types
+        // but there's a problem, the implicit-lookup does not appear to be able to look up
+        // `lift` with the context-bound, but had to invoke it explicitly
+        // Q: Is it because of my knowledge-gap w.r.t PartialFunction[Any,A] in the pattern-matching ?
+	    implicit def lift[R <: Option[Tree[_]],A](t: R ) : Tree[A] = 
+	        t match {
+	            case None => None
+	            case Some(v:Tree[A]) => v
+	        }
+	    def size(t: Option[Tree[Int]])(implicit w: Option[Tree[Int]] => Tree[Int]) : Int = w(t) match {
+	        case Leaf(a) => 1
+	        case Branch(lhs, rhs) => 1 + size(lhs) + size(rhs)
+	    }
+	
+	    def maximum(t: Option[Tree[Int]])(implicit w: Option[Tree[Int]] => Tree[Int]): Int = w(t) match {
+	        case Leaf(n) => n
+	        case Branch(lhs, rhs) => maximum(lhs) max maximum(rhs)
+	    }
+	    def depth[A](t: Option[Tree[A]])(implicit w: Option[Tree[A]] => Tree[A]) : Int = w(t) match {
+	        case Branch(lhs, rhs) => 1 + (depth(lhs) max depth(rhs))
+	        case Leaf(_) => 1
+	    }
+	    def map[A,B](t: Option[Tree[A]])(f: A => B)(implicit w: Option[Tree[A]] => Tree[A]): Option[Tree[B]] = w(t) match {
+	        case Leaf(a) => Some(Leaf(f(a)))
+	        case Branch(lhs, rhs) => Some(Branch(map(lhs)(f) , map(rhs)(f)))
+	    }
+
 }
 }
