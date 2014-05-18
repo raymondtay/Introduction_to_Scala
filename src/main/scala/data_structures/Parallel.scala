@@ -127,6 +127,8 @@ object ParallelObj {
 	      l map (asyncF((a: A) => if (f(a)) List(a) else List())) 
 	    map(sequence(pars))(_.flatten) // convenience method on `List` for concatenating a list of lists
 	  }
+
+      def lazyUnit[A](a: => A) : Par[A] = fork(unit(a))
 	
 	  def equal[A](e: ExecutorService)(p: Par[A], p2: Par[A]): Boolean = 
 	    p(e).get == p2(e).get
@@ -136,6 +138,7 @@ object ParallelObj {
 	
 	  /* 
 	  The correctness of this implementation requires only that the `ExecutorService` begins executing tasks in the order they are submitted. This enables us to safely call `innerF.get`. (You may want to try proving to yourself that this cannot deadlock)
+      This function is created because we wanted to allow the choice in deciding when computation should be done in parallel
 	  */
 	  def fork[A](p: => Par[A]): Par[A] = {
 	    es => {
