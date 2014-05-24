@@ -65,6 +65,25 @@ object Monoid {
         def id : Boolean = true 
     }
 
+    def functionMonoid[A,B](b: Monoid[B]) = new Monoid[A => B] {
+        def op(f: A => B, g: A => B) = (x: A) => b.op(f(x), g(x))
+        def id : A => B = new (A => B) { def apply(x: A) = b.id }
+    }
+
+    // walks over the collection once i.e. O(n)
+    def bag[A](as: IndexedSeq[A]) : collection.immutable.Map[A,Int] = {
+        var m1 = Map.empty[A,Int]
+        as map { item =>
+            val value = 
+            m1.get(item) match {
+                case Some(v) => v + 1
+                case None => 1
+            }
+            m1 = m1 + (item -> value)
+        }
+        m1
+    }
+
     val booleanAnd = new Monoid[Boolean] {
         def op(a: Boolean, b: Boolean) = a && b
         def id : Boolean = true 
