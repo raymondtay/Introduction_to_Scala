@@ -43,12 +43,6 @@ object EitherObj {
             b1 <- b
         } yield f(a,b1)
 
-        def sequence[E,A](es: List[Either[E,A]]) : Either[E, List[A]] = 
-            es match {
-                case Nil => Right(Nil)
-                case h :: t => h flatMap { a => sequence(t) map (a :: _) }
-            }
-
         def traverse[AA >:A, E,B](a: List[AA])(f: AA => Either[E,B]) : Either[E, List[B]] = a match {
             case Nil => Right(Nil)
             case h :: t => (f(h) map2 traverse(t)(f))(_::_)  
