@@ -1,5 +1,8 @@
+import java.util.Queue;
+
 public class BinarySearch<Key extends Comparable<Key>, Value> {
     private Key[] keys;
+    private Key sentinel = (Key)new Comparable(){ public int compareTo(Object o) { return -1; } };
     private Value[] vals;
     private int N;
 
@@ -39,5 +42,24 @@ public class BinarySearch<Key extends Comparable<Key>, Value> {
         vals[i] = val;
         N++;
     }
+
+    public Key min() { return keys[0]; }
+    public Key max() { return keys[N - 1]; }
+    public Key select(int k) { return keys[k]; }
+    public Key ceiling(Key key) { int i = rank(key); return keys[i]; }
+    public Key floor(Key key) { 
+        int i  = rank(key); 
+        if (i <= 0 || i >= N) return sentinel;
+        else return keys[i-1];
+    }
+/*
+    public Iterable<Key> keys(Key lo, Key hi) {
+        Queue<Key> q = new Queue<Key>();
+        int rankOfHi = rank(hi);
+        for( int i = rank(lo); i < rankOfHi; ++i) q.enqueue(keys[i]);
+        if (contains(hi)) q.enqueue(keys[rankOfHi]);
+        return q;
+    }
+*/
 }
 
