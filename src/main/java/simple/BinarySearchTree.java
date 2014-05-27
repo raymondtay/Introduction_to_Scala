@@ -59,5 +59,28 @@ public class BinarySearchTree<Key extends Comparable<Key>, Value> {
         return node;
     }
 
+    public Key select(int k) {
+        return select(root, k).key;
+    }
+
+    // Return node containing key of rank k
+    private Node select(Node x, int k ) {
+        if (x == null) return null;
+        int t = size(x.left);
+        if (t > k) return select(x.left, k);
+        else if (t < k) return select(x.right, k - t - 1);
+        else return x;
+    }
+
+    public int rank(Key key) { return rank(key, root); }
+
+    private int rank(Key key, Node x) {
+        // return number of keys less than x.key in the subtree rooted at x
+        if (x == null) return 0;
+        int cmp = key.compareTo(x.key);
+        if (cmp < 0) return rank(key, x.left);
+        else if (cmp > 0) return 1 + size(x.left) + rank(key, x.right);
+        else return size(x.left);
+    }
 }
 
