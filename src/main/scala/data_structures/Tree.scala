@@ -11,6 +11,12 @@ case class Leaf[A](value: A) extends Tree[A]
 case class Node[A](left: Tree[A], right: Tree[A]) extends Tree[A]
 
 object Tree {
+  def insert(value: Int, tree: Tree[Int]) = {
+    tree match {
+        case Node(Leaf(l), Leaf(r)) if value > l => Node(Node(Leaf(l), Leaf(value)), Leaf(r))
+        case Node(Leaf(l), Leaf(r)) if value > r => Node(Node(Leaf(value), Node(Leaf(l), Leaf(r))))
+    }
+  }
   def size[A](tree: Tree[A], acc: Int) : Int = 
     tree match {
         case Leaf(a) => acc + 1
