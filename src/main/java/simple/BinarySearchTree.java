@@ -82,5 +82,43 @@ public class BinarySearchTree<Key extends Comparable<Key>, Value> {
         else if (cmp > 0) return 1 + size(x.left) + rank(key, x.right);
         else return size(x.left);
     }
+
+    // Methods proposed by T. Hibbard
+    public void deleteMax() { root = deleteMin(root); } // search from the root ...
+
+    private Node deleteMax(Node x) { 
+        if (x.right == null) return x.left; // the `max` element should be on the right-side, if not return the left-side element
+        x.right = deleteMax(x.right); // continue to search for the `max` element by recursively going thru the right-branch
+        x.N = size(x.left) + size(x.right) + 1;
+        return x;
+    }
+
+    public void deleteMin() { root = deleteMin(root); } // search from the root ...
+
+    private Node deleteMin(Node x) { 
+        if (x.left == null) return x.right; // the `min` element should be on the left-side, if not return the right-side element
+        x.left = deleteMin(x.left); // continue to search for the `min` element by recursively going thru the left-branch
+        x.N = size(x.left) + size(x.right) + 1;
+        return x;
+    }
+
+    public void delete(Key key) { root = delete(root, key); } // search from the root for the `key`
+
+    private Node delete(Node x, Key key) {
+        if (x == null ) return null; // if its not there, its not there.
+        int cmp = key.compareTo(x.key); 
+        if (cmp < 0) x.left = delete(x.left, key); // search left-branches if smaller
+        if (cmp > 0) x.right = delete(x.right, key); // search right-branch otherwis
+        else { // otherwise bingo, we found it!
+            if (x.right == null) return x.left;
+            if (x.left == null) return x.right;
+            Node t = x;
+            x = min(t.right);
+            x.right = deleteMin(t.right);
+            x.left = t.left;
+        }
+        x.N = size(x.left) + size(x.right) + 1;
+        return x;
+    }
 }
 
