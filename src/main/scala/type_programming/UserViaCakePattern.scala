@@ -1,12 +1,12 @@
 import java.util.concurrent.locks._
 
-trait OLockStrategy[L <: Lock] {
-    protected val lck : Lock = null
+trait OLockStrategy[L <: java.util.concurrent.locks.Lock] {
+    protected val lck : java.util.concurrent.locks.Lock = null
     def lock : Unit
     def unlock : Unit
 }
 
-trait OAllowReentrancy extends LockStrategy[ReentrantLock] {
+trait OAllowReentrancy extends OLockStrategy[ReentrantLock] {
     override val lck = new ReentrantLock
     def lock = lck.lock
     def unlock = lck.unlock
@@ -15,7 +15,7 @@ trait OAllowReentrancy extends LockStrategy[ReentrantLock] {
 // Didn't want to expose my locking strategy to the 
 // 'User' object so its lodged into 'Atomics' instead
 trait OAtomics {
-    self: LockStrategy[_] =>
+    self: OLockStrategy[_] =>
 
     def atomicAssign[A](f: => Unit) = 
         try {

@@ -4,8 +4,8 @@ import java.util.concurrent.locks._
 // to allow users to receive the status of the acquiring or
 // releasing a lock over an object because ...
 //
-trait LockStrategy[L <: Lock] {
-    protected val lck : Lock = null
+trait LockStrategy[L <: java.util.concurrent.locks.Lock] {
+    protected val lck : java.util.concurrent.locks.Lock = null
     def lock : Unit
     def unlock : Unit
 }
