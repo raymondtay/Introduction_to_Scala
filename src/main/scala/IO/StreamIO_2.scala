@@ -66,6 +66,16 @@ trait Process[I,O] {
         go(0)
     }
 
+    def mean : Process[I,Float] = {
+        import scala.math._
+        def go(acc: Float) : Process[I,Float] = 
+        Await[I,Float] {
+            case Some(f:Float) => Emit((abs _ compose round)((acc+f)/2), go(acc+f))
+            case None => Halt()
+        }
+        go(0.0f)
+    }
+
     def dropWhile[Int](f: I => Boolean) : Process[I,I] = {
         def go : Process[I,I] = 
 		    Await[I,I]{
