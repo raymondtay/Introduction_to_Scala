@@ -1,3 +1,4 @@
+package streamingio
 
 /**
 trait IO { self ⇒ 

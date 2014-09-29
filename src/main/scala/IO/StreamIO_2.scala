@@ -66,6 +66,10 @@ trait Process[I,O] {
         go(0)
     }
 
+    def loop[S,I,O](z: S)(f: (I,S) ⇒ (O,S)) : Process[I,O] = 
+        Await((i:Option[I]) ⇒ f(i.get,z) match {
+            case (o,s2) ⇒ Emit(o, loop(s2)(f))
+        })
     def mean : Process[I,Float] = {
         import scala.math._
         def go(acc: Float) : Process[I,Float] = 

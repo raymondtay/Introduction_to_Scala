@@ -5,6 +5,10 @@ object IntroToScalaBuild extends Build {
     import OpenCL._
     import TestingDeps._
     import AkkaDeps._
+    import CacheTech._
+
+    val localRepoResolvers = Seq( "Local Maven Repo" at "file://"+Path.userHome.absolutePath+"/.m2/repository",
+        "Local Ivy Repo" at "file://"+Path.userHome.absolutePath+"/.ivy2/local")
 
     lazy val demo = Project(
     id = "introduction-to-scala",
@@ -15,16 +19,24 @@ object IntroToScalaBuild extends Build {
         scalaVersion := "2.10.4",
         scalacOptions ++= Seq("-feature", "-deprecation", "-language:postfixOps","-language:higherKinds", "-language:implicitConversions"),
         resolvers ++= Seq("snapshots", "releases").map(Resolver.sonatypeRepo),
+        resolvers ++= localRepoResolvers,
         resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
         scalacOptions in Test ++= Seq("-Yrangepos"),
         libraryDependencies ++= testDeps,
-        libraryDependencies ++= Seq(jocl),
+        libraryDependencies ++= Seq(jocl, jol, jcs, jcs_core, jcs_jcache),
         libraryDependencies ++= Seq(actors, actorCluster),
         libraryDependencies ++= Seq(scalaReflect),
         libraryDependencies ++= Seq(actortestkit),
         libraryDependencies ++= Seq(persistence)
         ) )
 }
+object CacheTech {
+    val jcs = "org.apache.commons" % "commons-jcs" % "2.0-SNAPSHOT"
+    val jcs_core = "org.apache.commons" % "commons-jcs-core" % "2.0-SNAPSHOT"
+    val jcs_jcache = "org.apache.commons" % "commons-jcs-jcache" % "2.0-SNAPSHOT"
+    val jol = "org.openjdk.jol" % "jol-core" % "1.0-SNAPSHOT"
+}
+
 object TestingDeps {
     val scalaTest = "org.scalatest" % "scalatest_2.10" % "2.0.M6" % "test"
     val junit4Interface = "com.novocode" % "junit-interface" % "0.10-M4" % "test"
