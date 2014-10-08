@@ -28,6 +28,14 @@ object XX {
             val (a2, rng3) = rb(rng2)
             (f(a1,a2), rng3)
         }
+
+    def map2ViaflatMap[A,B,C](ra: Rand[A], rb: Rand[B])(f: (A,B) => C) : Rand[C] = 
+        flatMap(ra)(a => 
+            flatMap(rb)(b =>
+                rng => (f(a,b), rng)))
+    def mapViaflatMap[A,B](a: Rand[A])(f: A => B) : Rand[B] = 
+       flatMap(a)(a => rng => (f(a), rng))
+
     def map[A,B](a: Rand[A])(f : A => B) : Rand[B] = 
         rng => {
             val (i2, rng2) = a(rng)
@@ -62,6 +70,12 @@ object XX {
             }
         rng => map(rng)(fs)(List[A]())
     }
+
+    def flatMap[A,B](f: Rand[A])(g: A => Rand[B]) : Rand[B] = 
+        rng => {
+            val (ra, rng2) = f(rng)
+            g(ra)(rng2)
+        }
 
     def nonNegativeEven: Rand[Int] = map(nonNegativeInt)(i => i - i % 2)
 }
