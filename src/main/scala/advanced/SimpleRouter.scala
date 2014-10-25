@@ -13,8 +13,8 @@ class Master extends Actor with ActorLogging {
 
     def receive = {
         case w : Work =>
-            log.info("sent work!")
-            router.route(w, sender())
+            println("sent work!")
+            router.route(Work(), sender())
         case Terminated(a) =>
             router = router.removeRoutee(a)
             val r = context.actorOf(Props[Worker])
@@ -26,9 +26,18 @@ class Master extends Actor with ActorLogging {
 
 class Worker extends Actor with ActorLogging {
     def receive = {
-        case w : Work => log.info("Got work!")
-        case _ => log.info("What ?")
+        case w : Work => println("Got work!")
+        case _ => println("What ?")
     }
 }
 
 case class Work() 
+
+object SimpleRouter extends App {
+
+val as = ActorSystem("SimpleRouter")
+val master = as.actorOf(Props[Master], "master")
+master ! "ready?"
+master ! "go!"
+for { i <- 1 to 2 } master ! Work()
+}
