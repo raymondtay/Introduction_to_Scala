@@ -4,9 +4,9 @@ import StateObj._
 
 object CandyDispenserViaStateM extends App {
 
-    val start : State[Machine,(Int,Int)] = State((m: Machine) => ((m.candies, m.coins),m))
+    def start : State[Machine,(Int,Int)] = State((m: Machine) => ((m.candies, m.coins),m))
 
-    def OnCoin = 
+    def OnCoin(m:Machine) = 
     State(
         (m: Machine) =>
             m.candies match {
@@ -17,15 +17,15 @@ object CandyDispenserViaStateM extends App {
                     println("No more candy. do nothing.")
                     ((m.candies, m.coins),Machine(false, m.candies, m.coins))
             }
-    )
-    def OnTurn = 
+    ).run(m)
+    def OnTurn(m:Machine) = 
     State(
         (m: Machine) =>
             m.locked match {
                 case true  => println("Machine is locked..");   ToUnlockNDispense(m)
                 case false => println("Machine is unlocked.."); ToDispense(m) 
             }
-    )
+    ).run(m)
     def ToDispense(m: Machine) = 
     State(
         (m: Machine) => 
@@ -41,14 +41,14 @@ object CandyDispenserViaStateM extends App {
     def ToUnlockNDispense(m: Machine) = ToDispense(Machine(false, m.candies, m.coins))
 
     def simulateMachine(inputs: List[Input]): State[Machine, (Int,Int)] = {
-		def go(li: List[Input])(m: State[Machine,(Int,Int)]) : State[Machine,(Int,Int)] = {
+		def go(li: List[Input])(m: ((Int,Int), Machine)) : ((Int,Int), Machine) = {
 		    li match {
-		        case (h:Coin) :: t => println("A coin is inserted..."); go(t)(OnCoin)
-		        case (h:Turn) :: t => println("The knob is turned..."); go(t)(OnTurn)
+		        case (h:Coin) :: t => println("A coin is inserted..."); go(t)(OnCoin(m._2))
+		        case (h:Turn) :: t => println("The knob is turned..."); go(t)(OnTurn(m._2))
 		        case Nil => m
 		    }
 		}
-		go(inputs)(start)
+        State( (m: Machine) => go(inputs)(start.run(m)))
     }
     override def main(arg: Array[String]) = {
 	    val size = 30
