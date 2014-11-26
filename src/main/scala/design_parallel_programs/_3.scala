@@ -24,27 +24,28 @@ object Par {
         (es: ExecutorService) => UnitFuture(f(a(es).get, b(es).get))
 
     // respecting timeouts
-    def map2WithTimeout[A,B,C](a: Par[A], b:Par[B])(f: (A,B) => C)(implicit remainingtime : Timeout) : Par[C] = 
+    def map2WithTimeout[A,B,C](a: Par[A], b:Par[B])(f: (A,B) => C)(implicit remainingtime : Timeout) : Par[C] = {
+        def measure[A](f: => A) : Tuple3[Long,A,Long] = {
+            val curr = System.currentTimeMillis
+            val result = f
+            val now = System.currentTimeMillis
+            (curr, result, now)
+        }
+        def timeIsOut(left: Long)(right: Long) = 
+            left > right match {
+                case true => throw new TimeoutException("Out of time!")
+                case false =>
+            }
         (es: ExecutorService) => {
-            // deal with a few scenarios
-            val curr = System.currentTimeMillis 
-            val af = a(es)
-            val now = System.currentTimeMillis 
+            val (curr, af, now) = measure(a(es))
             val timeTook = now - curr
-            timeTook > remainingtime.length match {
-                case true => throw new TimeoutException("out of time!")
-                case false => 
-            }
-            val curr2 = System.currentTimeMillis
-            val bf = b(es)
-            val now2 = System.currentTimeMillis
+            timeIsOut(timeTook)(remainingtime.length)
+            val (curr2, bf, now2) = measure(b(es))
             val timeTook2 = now2 - curr2
-            timeTook2 > (remainingtime.length - timeTook) match {
-                case true => throw new TimeoutException("out of time!")
-                case false => 
-            }
+            timeIsOut(timeTook2)(remainingtime.length - timeTook)
             UnitFuture(f(af.get, bf.get))
         }
+    }
 
     // `fork` marks a computation for concurrent evaluation.
     // the following two forms seem to satisfy the requirement, or do they??
