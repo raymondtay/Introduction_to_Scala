@@ -34,7 +34,7 @@ object CacheTech {
     val jcs = "org.apache.commons" % "commons-jcs" % "2.0-SNAPSHOT"
     val jcs_core = "org.apache.commons" % "commons-jcs-core" % "2.0-SNAPSHOT"
     val jcs_jcache = "org.apache.commons" % "commons-jcs-jcache" % "2.0-SNAPSHOT"
-    val jol = "org.openjdk.jol" % "jol-core" % "1.0-SNAPSHOT"
+    val jol = "org.openjdk.jol" % "jol-core" % "1.0.5-SNAPSHOT"
 }
 
 object TestingDeps {
