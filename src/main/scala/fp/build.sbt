@@ -11,6 +11,6 @@ libraryDependencies ++= Seq(
 
 scalacOptions += "-feature"
 
-initialCommands in console := "import scalaz._, Scalaz._, import tryouts._, import ToIsItTrueOps._, import InstancesOfIsItTrue._"
+initialCommands in console := "import scalaz._, Scalaz._; import tryouts._; import ToIsItTrueOps._; import InstancesOfIsItTrue._"
 
 
