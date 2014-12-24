@@ -47,6 +47,8 @@ object IsItTrue {
 // confining the implicits lookup through this trait ;
 // not to mention delaying the definition of `truthys` in the original
 // trait.
+// i like this design because it allows the trait to stay "clean" <=> just decla's and no defn's
+// and allows other traits to implement what is meant by the 'contract's.
 trait IsItTrueOps[A] {
     def self: A
     implicit def F: IsItTrue[A]
@@ -80,6 +82,38 @@ object InstancesOfIsItTrue {
         IsItTrue.truthys(_ => false)
 
     implicit val IsItTrue4Bool : IsItTrue[Boolean] = IsItTrue.truthys(identity)
+
+}
+
+object MimickingIf {
+    import ToIsItTrueOps._
+    def truthyIf[A: IsItTrue, B, C](cond: A)(ifyes: => B)(ifno: => C) =
+        if (cond.truthy) ifyes else ifno
+		/**
+		scala> import tryouts._; import ToIsItTrueOps._;import InstancesOfIsItTrue._
+		import tryouts._
+		import ToIsItTrueOps._
+		import InstancesOfIsItTrue._
+		
+		scala> import MimickingIf._
+		import MimickingIf._
+		
+		scala> truthyIf(false)("a")("b")
+		res1: Any = b
+		
+		scala> truthyIf(Nil)("a")("b")
+		res2: Any = b
+		
+		scala> truthyIf(2::Nil)("a")("b")
+		res3: Any = a
+		
+		scala> truthyIf(2)("a")("b")
+		res4: Any = a
+		
+		scala> truthyIf(-999)("a")("b")
+		res5: Any = a
+		*/
+
 }
 
 
