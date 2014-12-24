@@ -1,5 +1,7 @@
 package monoidsonly
 
+import scala.language._
+
 trait Monoid[A] {
     def mappend(a: A, b: A ) : A
     def mzero : A
