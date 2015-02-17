@@ -36,72 +36,76 @@ object FindLongestPath {
         }
     }
 
-    def smallest = (m: Seq[Seq[Int]]) => (m.map(l => l.min)).min
+    def smallestElevation = (m: Seq[Seq[Int]]) => (m.map(l => l.min)).min
 
     private def getStartingPoint(rows: Int, cols: Int) = {
         import util.Random._
         (nextInt(rows), nextInt(cols))
     }
+    def left = (rows:Int) => (cols:Int) =>
+        (cols - 1) < 0 match {
+            case false => (rows, cols - 1)
+            case _     => sentinel
+        }
+
+    def right = (rows: Int) => (cols: Int) =>  
+        (cols + 1) >= COLS match {
+            case false => (rows, cols + 1)
+            case _     => sentinel
+        }
+
+    def up = (rows:Int) => (cols: Int) =>
+        (rows - 1) < 0 match {
+            case false => (rows - 1, cols)
+            case true  => sentinel
+        }
+
+    def down = (rows:Int) => (cols: Int) =>
+        (rows + 1) >= ROWS match {
+            case false => (rows + 1, cols)
+            case true  => sentinel
+        }
+
+    def upperleft = (rows:Int) => (cols:Int) =>
+        within((rows - 1, cols -1))(UpperLeft) match {
+            case true   => (rows - 1, cols - 1)
+            case false  => sentinel
+        }
+
+    def upperright = (rows: Int) => (cols:Int) =>
+        within((rows - 1, cols + 1))(UpperRight) match {
+            case true  => (rows - 1, cols + 1)
+            case false => sentinel
+        }
+
+    def bottomleft = (rows: Int) => (cols:Int) =>
+        within((rows +1 , cols - 1))(BottomLeft) match {
+            case true  => (rows + 1, cols - 1)
+            case false => sentinel
+        }
+
+    def bottomright = (rows: Int) => (cols: Int) =>
+        within((rows + 1, cols + 1))(BottomRight) match {
+            case true  => (rows + 1, cols + 1)
+            case false => sentinel
+        }
+
 
     private def findNeighbours(matrix: Seq[Seq[Int]])(coords: (Int, Int)) : Seq[Node] = {
         val x = fst(coords)
         val y = snd(coords)
 
-        def left = (rows:Int) => (cols:Int) =>
-            (cols - 1) < 0 match {
-                case false => val c = (rows, cols - 1); println("left: " + c); c
-                case _     => sentinel
-            }
-
-        def right = (rows: Int) => (cols: Int) =>  
-            (cols + 1) >= COLS match {
-                case false => val c = (rows, cols + 1); println("right: " + c); c
-                case _     => sentinel
-            }
-
-        def up = (rows:Int) => (cols: Int) =>
-            (rows - 1) < 0 match {
-                case false => val c = (rows - 1, cols); println("up: " + c); c
-                case true  => sentinel
-            }
-
-        def down = (rows:Int) => (cols: Int) =>
-            (rows + 1) >= ROWS match {
-                case false => val c = (rows + 1, cols); println("down: " + c); c
-                case true  => sentinel
-            }
-
-        def upperleft = (rows:Int) => (cols:Int) =>
-            within((rows - 1, cols -1))(UpperLeft) match {
-                case true => val c = (rows - 1, cols - 1); println("upperleft: " + c); c
-                case false  => sentinel
-            }
-
-        def upperright = (rows: Int) => (cols:Int) =>
-            within((rows - 1, cols + 1))(UpperRight) match {
-                case true  => val c = (rows - 1, cols + 1); println("upperright: " + c); c
-                case false  => sentinel
-            }
-
-        def bottomleft = (rows: Int) => (cols:Int) =>
-            within((rows +1 , cols - 1))(BottomLeft) match {
-                case true => val c = (rows + 1, cols - 1); println("bottomleft: " + c); c
-                case false  => sentinel
-            }
-
-        def bottomright = (rows: Int) => (cols: Int) =>
-            within((rows + 1, cols + 1))(BottomRight) match {
-                case true => val c = (rows + 1, cols + 1); println("bottomright: " + c); c
-                case false  => sentinel
-            }
-
-        val valueAtStartPoint = matrix(x)(y)
-        Seq(left, right, up, down, upperleft, upperright, bottomleft, bottomright).
-        map(f => f(x)(y)).
-        filter( pair => fst(pair) != fst(sentinel) && 
-                        snd(pair) != snd(sentinel) && 
-                        matrix(fst(pair))(snd(pair)) <= valueAtStartPoint).
-        map(pair => Node(matrix(fst(pair))(snd(pair)), pair))
+        val currentElevation = matrix(x)(y)
+        (currentElevation == smallestElevation(matrix)) match {
+            case true  => Nil // stop the search coz you've found it!
+            case false =>     // continue the search ... 
+		        Seq(left, right, up, down, upperleft, upperright, bottomleft, bottomright).
+		        map(f => f(x)(y)).
+		        filter( pair => fst(pair) != fst(sentinel) &&  // not the sentinel
+		                        snd(pair) != snd(sentinel) && 
+		                        matrix(fst(pair))(snd(pair)) < currentElevation). // found a new place to descend !
+		        map(pair => Node(matrix(fst(pair))(snd(pair)), pair)) // pass the information along ..
+        }
     }
 
     def findLongestPath(matrix: Seq[Seq[Int]])(rows: Int, cols: Int) = {
@@ -110,20 +114,15 @@ object FindLongestPath {
         println("All paths from " + start + " is " + getAllPaths(matrix)(start)(allNeighbours))
     }
 
-    def getAllPaths(matrix:Seq[Seq[Int]])(start: (Int,Int))(candidates: Seq[Node]) : Seq[Seq[Node]] =
-        candidates.map {
-            node => 
-                val neighbours = findNeighbours(matrix)(node.coord)
-                println("-> " + neighbours); neighbours
-/*
-                neighbours match {
-                    case x :: y :: t => 
-                        getAllPaths(matrix)(x.coord)(findNeighbours(matrix)(x.coord))
-                    case h :: Nil => 
-                        candidates
-                }
-*/
+    def getAllPaths(matrix:Seq[Seq[Int]])(start: (Int,Int))(candidates: Seq[Node]) : Seq[Node] = {
+        candidates.foldLeft(Seq.empty[Node]){
+            (acc, node) => 
+                val x = getAllPaths(matrix)(node.coord)(findNeighbours(matrix)(node.coord))
+                val combo = acc :+ node
+                println("from -> " + node + ", we found " + combo)
+                combo
         }
+    }
 
     def main(args : Array[String]) { 
         val matrix = generateMatrix(ROWS, COLS)
