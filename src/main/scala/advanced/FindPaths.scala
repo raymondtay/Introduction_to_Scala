@@ -1,8 +1,23 @@
 import util.Random._
+import scala.util._
 
-type Row = Int
-type Col = Int
-type Position = (Row, Col)
+/*
+  Two ways to run this:
+  Part 1:
+  (a) Tested on scala 2.10.4 REPL, load the file and trigger the `Find` object using the usual way
+
+  Part 2:
+  (b) On the commandline:
+  (b.1) scalac ./FindPaths.scala
+  (b.2) scala -cp . Find
+*/
+object TT {
+    type Row = Int
+    type Col = Int
+    type Position = (Row, Col)
+}
+
+import TT._
 
 class Walker(val matrix   : Seq[Seq[Int]], 
              val position : Position, 
