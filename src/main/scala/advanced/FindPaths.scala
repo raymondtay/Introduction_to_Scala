@@ -96,13 +96,13 @@ class Walker(val matrix   : Seq[Seq[Int]],
         xs toMap
     }
 
-    def findOptimizedPaths(paths: Set[List[(Int,Int)]]) : List[(Int, List[(Int,Int)])] = 
+    def findOptimizedPaths(paths: Set[List[(Int,Int)]]) : List[(Int, Int, List[(Int,Int)])] = 
         paths.toList.map{ 
             list =>
                 val headE = list(0)
                 val lastE = list(list.size - 1)
-                (abs(matrix(fst(lastE))(snd(lastE)) - matrix(fst(headE))(snd(headE))), list)
-        }
+                (abs(matrix(fst(lastE))(snd(lastE)) - matrix(fst(headE))(snd(headE))), list.size, list)
+        }.sortBy(t => t._2).sortBy(t => t._1) // sort by length, then by greatest drop
 
     // Locates all the paths from the "start" position
     // by locating all accessible end-points
@@ -160,9 +160,9 @@ class Walker(val matrix   : Seq[Seq[Int]],
 }
 
 object Find {
-    val rows = 10
-    val cols = 10
-    val limit = 10
+    val rows = 1000
+    val cols = 1000
+    val limit = 1500
 
     // fill it up with non-zero values
     def fillItUp : Int = {
