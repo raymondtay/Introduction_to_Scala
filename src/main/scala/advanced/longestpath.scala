@@ -99,28 +99,37 @@ object FindLongestPath {
         (currentElevation == smallestElevation(matrix)) match {
             case true  => Nil // stop the search coz you've found it!
             case false =>     // continue the search ... 
+                val a = 
 		        Seq(left, right, up, down, upperleft, upperright, bottomleft, bottomright).
 		        map(f => f(x)(y)).
 		        filter( pair => fst(pair) != fst(sentinel) &&  // not the sentinel
 		                        snd(pair) != snd(sentinel) && 
 		                        matrix(fst(pair))(snd(pair)) < currentElevation). // found a new place to descend !
 		        map(pair => Node(matrix(fst(pair))(snd(pair)), pair)) // pass the information along ..
+                println("found neighbours of " + (x,y) + " to be " + a)
+                a
         }
     }
 
     def findLongestPath(matrix: Seq[Seq[Int]])(rows: Int, cols: Int) = {
         val start = getStartingPoint(rows, cols) 
-        val allNeighbours = findNeighbours(matrix)(start) 
-        println("All paths from " + start + " is " + getAllPaths(matrix)(start)(allNeighbours))
+        println("All paths from " + start + " is " + visit(matrix)(start))
     }
 
-    def getAllPaths(matrix:Seq[Seq[Int]])(start: (Int,Int))(candidates: Seq[Node]) : Seq[Node] = {
-        candidates.foldLeft(Seq.empty[Node]){
-            (acc, node) => 
-                val x = getAllPaths(matrix)(node.coord)(findNeighbours(matrix)(node.coord))
-                val combo = acc :+ node
-                println("from -> " + node + ", we found " + combo)
-                combo
+    def visit(matrix: Seq[Seq[Int]])(position: (Int,Int)) : Seq[Node] = {
+ 
+        @scala.annotation.tailrec
+        def trace(acc: Seq[Node], remain: Seq[Node]) : Seq[Node] = 
+        remain match {
+            case Nil    => println("A path is -> " + acc); acc
+            case h :: t => trace(acc :+ h, visit(matrix)(h.coord))
+        }
+
+        val x = Node(matrix(fst(position))(snd(position)), position)
+
+        findNeighbours(matrix)(position) match {
+            case Nil => Nil
+            case ns  => trace(Seq(x), ns)
         }
     }
 

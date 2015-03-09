@@ -1,5 +1,7 @@
 import util.Random._
 import scala.util._
+import scala.language.postfixOps
+import math._
 
 /*
   Two ways to run this:
@@ -26,6 +28,7 @@ class Walker(val matrix   : Seq[Seq[Int]],
     private def fst(p: Position) = p._1
     private def snd(p: Position) = p._2
     private lazy val smallestElement = matrix.map(l => l.min).min
+    var paths = collection.mutable.ListBuffer.empty[List[(Int,Int)]]
 
     // Locates the destination given the "row" & "col" increments
     // from the given "position". We'll also check that we can descend
@@ -93,6 +96,14 @@ class Walker(val matrix   : Seq[Seq[Int]],
         xs toMap
     }
 
+    def findOptimizedPaths(paths: Set[List[(Int,Int)]]) : List[(Int, List[(Int,Int)])] = 
+        paths.toList.map{ 
+            list =>
+                val headE = list(0)
+                val lastE = list(list.size - 1)
+                (abs(matrix(fst(lastE))(snd(lastE)) - matrix(fst(headE))(snd(headE))), list)
+        }
+
     // Locates all the paths from the "start" position
     // by locating all accessible end-points
     def findAllPaths(start: Position) = {
@@ -104,12 +115,30 @@ class Walker(val matrix   : Seq[Seq[Int]],
 	            case Failure(e)      => acc
 	            case Success(Nil)    => acc
 	            case Success(h :: t) =>
-	                t.map(k => visitMap(k, acc ++ Seq(k))) :+ visitMap(h, acc :+ h)
+	                val result = t.map(k => visitMap(k, acc ++ Seq(k))) :+ visitMap(h, acc :+ h)
+                    register(result)
+                    result
 	        }
 	    }
         
         visitMap(start, Seq(start))
     }
+
+    // Goes thru a list of list of ... 
+    // and once we find the "right" list, register it.
+    def register(suspect: List[Any]) : Unit = {
+        suspect match {
+            case (h:(_,_))::t =>
+            case h :: t =>
+                val ha = h.asInstanceOf[List[(Int,Int)]]
+                Try(ha(0)) match {
+                    case Success(v) => paths = paths :+ ha; register(t)
+                    case Failure(e) => suspect.map(l => register(l.asInstanceOf[List[Any]]))
+                }
+            case Nil => Nil
+        }
+    }
+
 
     private def g    = (row: Int) => (col: Int) => (position: Option[Position]) => position.isEmpty match { case false => getNewPosition(position.get, row, col); case true => None}
 
@@ -157,9 +186,9 @@ object Find {
 
         println(s"${pretty_print(matrix)}")
 
-        val paths = w.findAllPaths(w.position)
+        w.findAllPaths(w.position)
 
-        println(s"All paths from ${w.position} is ${paths}")
+        println(s"All paths from ${w.position} is ${w.findOptimizedPaths(w.paths.toSet)}")
     }
 
 }
