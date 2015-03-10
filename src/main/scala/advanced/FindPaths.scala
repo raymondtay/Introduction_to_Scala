@@ -21,9 +21,8 @@ object TT {
 
 import TT._
 
-class Walker(val matrix   : Seq[Seq[Int]], 
-             val position : Position, 
-             val rbound   :Int, val cbound: Int) {
+class Walker(val matrix   : Array[Array[Int]], 
+             val rbound   :Int, val cbound: Int)(val position: Position) {
 
     private def fst(p: Position) = p._1
     private def snd(p: Position) = p._2
@@ -37,7 +36,7 @@ class Walker(val matrix   : Seq[Seq[Int]],
         val (cr, cc) = ( fst(position),snd(position) ) // current row & column
 
         def endOfRoad(row: Int, col: Int) = {
-            (row < 0 || col < 0 || row >= rbound || col >= cbound) match {
+            (row <= 0 || col <= 0 || row >= rbound || col >= cbound) match {
                 case true => true
                 case _    => matrix(row)(col) == smallestElement  
             }
@@ -101,16 +100,16 @@ class Walker(val matrix   : Seq[Seq[Int]],
             list =>
                 val headE = list(0)
                 val lastE = list(list.size - 1)
-                (abs(matrix(fst(lastE))(snd(lastE)) - matrix(fst(headE))(snd(headE))), list.size, list)
-        }.sortBy(t => t._2).sortBy(t => t._1) // sort by length, then by greatest drop
+                (list.size, abs(matrix(fst(lastE))(snd(lastE)) - matrix(fst(headE))(snd(headE))), list)
+        }.sortBy(t => t._1).sortBy(t => t._2) // sort by length, then by greatest drop
 
     // Locates all the paths from the "start" position
     // by locating all accessible end-points
-    def findAllPaths(start: Position) = {
-        val map = findAllNeighbours(start)
+    def findAllPaths = {
+        val map = findAllNeighbours(position)
 
 	    def visitMap(key : Position, acc: Seq[Position]) : Seq[Any] = {
-	        println(key)
+	        //println(key)
 	        Try(map(key).toList) match {
 	            case Failure(e)      => acc
 	            case Success(Nil)    => acc
@@ -121,7 +120,7 @@ class Walker(val matrix   : Seq[Seq[Int]],
 	        }
 	    }
         
-        visitMap(start, Seq(start))
+        visitMap(position, Seq(position))
     }
 
     // Goes thru a list of list of ... 
@@ -173,22 +172,41 @@ object Find {
         }
     }
 
+    // reads in the data from the data file "map.txt"
+    def readData: Array[Array[Int]] = {
+        var b = collection.mutable.ListBuffer.empty[Array[Int]]
+        import scala.io.Source._
+        fromFile("/Users/raymondtay/Introduction_to_Scala/src/main/scala/advanced/map.txt").
+        getLines().foreach(l => b += l.split(" ").map(_.toInt))
+        b.toArray
+    }
+
     // pretty printer for n x n matrix
-    def pretty_print(m : Seq[Seq[Int]]) = m.map(_.mkString("|")).map(_ + "\n").mkString
+    def pretty_print(m : Array[Array[Int]]) = m.map(_.mkString("|")).map(_ + "\n").mkString
    
-    def givenAStartCoord : Position = (nextInt(rows), nextInt(cols))
 
-    def main(args: Array[String]) = {
+    def main(args: Array[String]) :Unit = {
 
-        val matrix = Seq.fill(rows, cols)(fillItUp)
-
-        val w = new Walker(matrix, givenAStartCoord, rows, cols)
+        val matrix = readData
 
         println(s"${pretty_print(matrix)}")
 
-        w.findAllPaths(w.position)
+        val allcoords = 
+        for {
+            x <- (0 to rows)
+            y <- (0 to cols)
+        } yield (x,y)
 
-        println(s"All paths from ${w.position} is ${w.findOptimizedPaths(w.paths.toSet)}")
+        val allpaths = 
+        allcoords.par.map{ t => 
+            val w = new Walker(matrix, rows, cols)(t)
+            println(s"Starting with ${t} ...") 
+            w.findAllPaths
+            println(s"From ${t}, found all paths and proceeding to locate optimized paths ...") 
+            (t,  w.findOptimizedPaths(w.paths.toSet))
+        }
+
+        allpaths.map{ t => println(s"start position ${t._1}, is '${t._2}'\n") }
     }
 
 }
