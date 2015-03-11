@@ -95,7 +95,7 @@ class Walker(val matrix   : Array[Array[Int]],
         xs toMap
     }
 
-    def findOptimizedPaths(paths: Set[List[(Int,Int)]]) : List[(Int, Int, List[(Int,Int)])] = 
+    def findOptimizedPaths(paths: Set[List[Position]]) : List[(Int, Int, List[Position])] = 
         paths.toList.map{ 
             list =>
                 val headE = list(0)
@@ -129,7 +129,7 @@ class Walker(val matrix   : Array[Array[Int]],
         suspect match {
             case (h:(_,_))::t =>
             case h :: t =>
-                val ha = h.asInstanceOf[List[(Int,Int)]]
+                val ha = h.asInstanceOf[List[Position]]
                 Try(ha(0)) match {
                     case Success(v) => paths = paths :+ ha; register(t)
                     case Failure(e) => suspect.map(l => register(l.asInstanceOf[List[Any]]))
@@ -172,13 +172,54 @@ object Find {
         }
     }
 
+    def readIndexData = {
+        import scala.io.Source._
+        var b = collection.mutable.ListBuffer.empty[Array[String]]
+        fromFile("./index.txt").
+        getLines().foreach(l => b += l.split(","))
+        b.toArray.flatten
+    }
+
     // reads in the data from the data file "map.txt"
     def readData: Array[Array[Int]] = {
         var b = collection.mutable.ListBuffer.empty[Array[Int]]
         import scala.io.Source._
-        fromFile("/Users/raymondtay/Introduction_to_Scala/src/main/scala/advanced/map.txt").
+        fromFile("./map.txt").
         getLines().foreach(l => b += l.split(" ").map(_.toInt))
         b.toArray
+    }
+
+    def writeToIndexFile(row:Int,col:Int,size:Int) {
+        import java.io._
+        val indexfile = new File(s"./index.txt")
+        col == cols match {
+            case true  => val bw = new BufferedWriter(new FileWriter(indexfile)); bw.write(s"${row+size},0,${size}"); bw.close
+            case false => val bw = new BufferedWriter(new FileWriter(indexfile)); bw.write(s"${row},${col+size},${size}"); bw.close
+        }
+    }
+   
+    // this is an overkill but considering how easy it is to 
+    // enabling parallelism in Scala implicitly e.g. 'par'..
+    // "better be safe than sorry" ? i hate premature optimization though 
+    val pathSteepestDescent = 
+        new java.util.concurrent.atomic.AtomicReference[(Int,Int,List[Position])]((-99,-99,List((0,0))))
+ 
+    def writeToDataFile(data:List[(Int, Int, List[Position])])
+                       (row:Int, col: Int, size: Int)
+                       (optfn : (Int,Int) => Int) = {
+        import java.io._
+        val datafilename = new File(s"./data${row}_${col}.txt")
+        val bw = new BufferedWriter(new FileWriter(datafilename, true)) // append to existing file 
+        data.toSet.map{(t: (Int,Int,List[Position])) => optfn(t._1, pathSteepestDescent.get._1) == t._1 match {
+                        case true  => pathSteepestDescent.set(t)
+                        case false =>
+                      }
+                }
+        // TODO: the caveat is that when we don't discover the "steepest descent" path
+        // because the max is already present in the atomic variable, then we still end up
+        // printing the data point ..which is wrong. Need to correct that.
+        bw.write(pathSteepestDescent.get._1 + "," + pathSteepestDescent.get._2 + "," + pathSteepestDescent.get._3.toString + "\n")
+        bw.close
     }
 
     // pretty printer for n x n matrix
@@ -187,26 +228,30 @@ object Find {
 
     def main(args: Array[String]) :Unit = {
 
+        val indexData = readIndexData
+        val (startRow, startCol, rowColCount) = (indexData(0).toInt, indexData(1).toInt, indexData(2).toInt)
         val matrix = readData
 
-        println(s"${pretty_print(matrix)}")
+        //println(s"${pretty_print(matrix)}")
+
+        val count = new java.util.concurrent.atomic.AtomicInteger(rowColCount*rowColCount)
 
         val allcoords = 
         for {
-            x <- (0 to rows)
-            y <- (0 to cols)
+            x <- (startRow until startRow+rowColCount)
+            y <- (startCol until startCol+rowColCount)
         } yield (x,y)
 
         val allpaths = 
-        allcoords.par.map{ t => 
+        allcoords.map{ t => 
             val w = new Walker(matrix, rows, cols)(t)
-            println(s"Starting with ${t} ...") 
             w.findAllPaths
-            println(s"From ${t}, found all paths and proceeding to locate optimized paths ...") 
-            (t,  w.findOptimizedPaths(w.paths.toSet))
+            //println(s"Remaining ${count.decrementAndGet}...")
+            //(t,  w.findOptimizedPaths(w.paths.toSet))
+            writeToDataFile(w.findOptimizedPaths(w.paths.toSet))(startRow, startCol, rowColCount )(math.max)
         }
-
-        allpaths.map{ t => println(s"start position ${t._1}, is '${t._2}'\n") }
+        writeToIndexFile(startRow,startCol,rowColCount)
+        println(s"Completed data mining for a matrix of $rowColCount X $rowColCount starting from ($startRow, $startCol)")
     }
 
 }
