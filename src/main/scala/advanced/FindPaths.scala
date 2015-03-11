@@ -231,7 +231,11 @@ object Find {
         import java.io._
         loadSteepestDescent
         data.toSet.map{(t: (Int,Int,List[Position])) => optfn(t._1, pathSteepestDescent.get._1) == t._1 match {
-                        case true  => pathSteepestDescent.set(t)
+                        case true  => 
+                            optfn(t._2, pathSteepestDescent.get._2) == t._2 match {
+                                case true  => pathSteepestDescent.set(t)
+                                case false =>
+                            }
                         case false =>
                       }
                 }
