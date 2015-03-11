@@ -197,7 +197,28 @@ object Find {
             case false => val bw = new BufferedWriter(new FileWriter(indexfile)); bw.write(s"${row},${col+size},${size}"); bw.close
         }
     }
-   
+
+    def loadSteepestDescent {
+        import java.io._
+        Try(new FileInputStream("./steepestdescent.txt")) match {
+            case Success(is) =>
+                val ois = new ObjectInputStream(is)
+                pathSteepestDescent.set(ois.readObject.asInstanceOf[(Int,Int,List[Position])])
+                is.close
+                ois.close
+            case Failure(e) => pathSteepestDescent.set((-99, -99, List((0,0))))
+        }
+    }
+
+    def storeSteepestDescent {
+        import java.io._
+        val os = new FileOutputStream("./steepestdescent.txt")
+        val oos = new ObjectOutputStream(os)
+        oos.writeObject(pathSteepestDescent.get)
+        os.close
+        oos.close
+    }
+ 
     // this is an overkill but considering how easy it is to 
     // enabling parallelism in Scala implicitly e.g. 'par'..
     // "better be safe than sorry" ? i hate premature optimization though 
@@ -208,18 +229,14 @@ object Find {
                        (row:Int, col: Int, size: Int)
                        (optfn : (Int,Int) => Int) = {
         import java.io._
-        val datafilename = new File(s"./data${row}_${col}.txt")
-        val bw = new BufferedWriter(new FileWriter(datafilename, true)) // append to existing file 
+        loadSteepestDescent
         data.toSet.map{(t: (Int,Int,List[Position])) => optfn(t._1, pathSteepestDescent.get._1) == t._1 match {
                         case true  => pathSteepestDescent.set(t)
                         case false =>
                       }
                 }
-        // TODO: the caveat is that when we don't discover the "steepest descent" path
-        // because the max is already present in the atomic variable, then we still end up
-        // printing the data point ..which is wrong. Need to correct that.
-        bw.write(pathSteepestDescent.get._1 + "," + pathSteepestDescent.get._2 + "," + pathSteepestDescent.get._3.toString + "\n")
-        bw.close
+        println(s"Steepest Descent info: ${pathSteepestDescent.get} in Seg($row,$col) of size($size)")
+        storeSteepestDescent
     }
 
     // pretty printer for n x n matrix
