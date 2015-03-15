@@ -77,7 +77,7 @@ class Walker(val matrix   : Array[Array[Int]],
     }
 
     // Finds all the neighbours who are around me and i can descend to!
-    def neighbours = (position: Option[Position]) => Seq(goLeft, goRight, goUp, goDown, upperLeft, upperRight, bottomLeft, bottomRight).map(f => f(position))
+    def neighbours = (position: Option[Position]) => Seq(goLeft, goRight, goUp, goDown).map(f => f(position))
 
     // Construct a map of the valid neighbours
     def findAllNeighbours(position: Position) = {
