@@ -21,6 +21,8 @@ public class MergeSort {
 
     }
 
+    // The runtime is about O(N lg N) and this is valid regardless
+    // of the order of the elements in the array & values in the array.
     public static void sort(Comparable[] a, int low, int high) {
         if (high <= low) return;
         int mid = low + (high - low)/2;
