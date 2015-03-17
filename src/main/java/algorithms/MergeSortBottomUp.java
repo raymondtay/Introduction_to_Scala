@@ -1,5 +1,6 @@
 public class MergeSortBottomUp {
 
+    private static Comparable[] aux = null;
     private static boolean less(Comparable a, Comparable b) {
         return a.compareTo(b) < 0;
     }
@@ -9,7 +10,6 @@ public class MergeSortBottomUp {
     public static void merge(Comparable[] a, int low, int mid, int high) {
         int i = low;
         int j = mid + 1;
-        Comparable[] aux = new Comparable[a.length];
         for( int k = low; k <= high; ++k )  // copy a[low..high] to aux[low..high]
             aux[k] = a[k];
 
@@ -23,6 +23,7 @@ public class MergeSortBottomUp {
 
     public static void sort(Comparable[]a) {
         int N = a.length;
+        aux = new Comparable[a.length];
         for(int sz = 1; sz < N; sz = sz + sz)
             for(int low = 0; low < N - sz; low += sz + sz)
                 merge(a, low, low+sz-1, Math.min(low+sz+sz-1, N-1));

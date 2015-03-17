@@ -1,5 +1,6 @@
 public class MergeSort {
 
+    private static Comparable[] aux = null;
     private static boolean less(Comparable a, Comparable b) {
         return a.compareTo(b) < 0;
     }
@@ -9,7 +10,6 @@ public class MergeSort {
     public static void merge(Comparable[] a, int low, int mid, int high) {
         int i = low;
         int j = mid + 1;
-        Comparable[] aux = new Comparable[a.length];
         for( int k = low; k <= high; ++k )  // copy a[low..high] to aux[low..high]
             aux[k] = a[k];
 
@@ -28,14 +28,23 @@ public class MergeSort {
         int mid = low + (high - low)/2;
         sort(a, low, mid);
         sort(a, mid+1, high);
-        merge(a, low, mid, high);
+
+        // we modify a little to allow O(N) runtime
+        // by checking if the a[mid] < a[mid+1] because if it were
+        // then we do not need to conduct the merge routine => shaving the temporary array
+        // needed and running the routine 
+        if (less(a[mid], a[mid+1])) return;
+        else merge(a, low, mid, high);
     }
 
     public static void main(String[] args) {
         Comparable[] data = new Comparable[100000]; // took < 5 seconds on my OSX Intel Core i7 @ 2.7Ghz
         for(int i =0; i < data.length; ++i) 
             data[i] = i;
+        aux = new Comparable[data.length];
         sort(data, 0, data.length -1);
+        for(int i =0; i < data.length; ++i) 
+            System.out.println(data[i]+",");
     }
 
 }
