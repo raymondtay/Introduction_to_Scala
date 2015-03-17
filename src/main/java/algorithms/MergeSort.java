@@ -19,7 +19,7 @@ public class MergeSort {
         for(int k = low; k <= high; ++k)
             if      (i > mid)             a[k] = aux[j++];
             else if (j > high)            a[k] = aux[i++];
-            else if (less(aux[j],aux[j])) a[k] = aux[j++];
+            else if (less(aux[j],aux[i])) a[k] = aux[j++];
             else                          a[k] = aux[i++];
 
     }
@@ -45,8 +45,9 @@ public class MergeSort {
 
     public static void main(String[] args) {
         Comparable[] data = new Comparable[100000]; // took < 5 seconds on my OSX Intel Core i7 @ 2.7Ghz
-        for(int i =0; i < data.length; ++i) 
-            data[i] = i;
+        int count = 100000;
+        for(int i =0; i < data.length; ++i, --count) 
+            data[i] = count;
         Comparable[] aux = new Comparable[data.length];
         sort(data, 0, data.length -1, aux);
         for(int i =0; i < data.length; ++i) 
