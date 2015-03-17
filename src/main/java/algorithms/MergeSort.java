@@ -21,4 +21,19 @@ public class MergeSort {
 
     }
 
+    public static void sort(Comparable[] a, int low, int high) {
+        if (high <= low) return;
+        int mid = low + (high - low)/2;
+        sort(a, low, mid);
+        sort(a, mid+1, high);
+        merge(a, low, mid, high);
+    }
+
+    public static void main(String[] args) {
+        Comparable[] data = new Comparable[100000]; // took < 5 seconds on my OSX Intel Core i7 @ 2.7Ghz
+        for(int i =0; i < data.length; ++i) 
+            data[i] = i;
+        sort(data, 0, data.length -1);
+    }
+
 }
