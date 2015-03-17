@@ -18,9 +18,10 @@ object LocalMin {
 	        val left = mid - 1
 	        val right = mid + 1
             if (mid == leftbound) return sentinel
-            println(s"Examining $left, $mid, $right")
+            println(s"Examining ${a(left)}, ${a(mid)}, ${a(right)}")
 	        Try( islocalminimum(a(left), a(mid), a(right)) ) match {
-	            case Success(v) => (a(left), a(mid), a(right))
+	            case Success(true) => (a(left), a(mid), a(right))
+	            case Success(false) => go(leftbound, mid)
 	            case Failure(_) => go(leftbound, mid)
 	        }
         }
@@ -31,11 +32,13 @@ object LocalMin {
     def main(args: Array[String]) {
         import scala.util.Random._
             
-        val N = args(0).toInt
+        //val N = args(0).toInt
 
-        val arr = (0 to N).permutations.toArray
+        //val arr = (0 to N).permutations.toArray
         
-        println(search(arr(nextInt(N)).toArray))
+        println(search((1 to 100).toArray))
+        println(search((1 to 100).reverse.toArray))
+        //println(search(arr(nextInt(N)).toArray))
     }
 
 }

@@ -23,15 +23,15 @@ public class Inversions {
     // search 1 halve followed by the other halve
     // break down till there 2 leaves and perform function
     // isInversion(x, [x1,x2]) where [x1,x2] are the leaves 
-    public static void findAllInversions(Comparable[] a, int low, int high) {
+    public static void findAllInversions(int x, Comparable[] a, int low, int high) {
         if (low == high) return ;
         int mid = a.length/2;
        
-        findInversions(a, low, mid);
-        findInversions(a, mid+1, high);
+        findInversions(x, a, low, mid);
+        findInversions(x, a, mid+1, high);
     }
 
-    private static void findInversions(Comparable[] a, int low, int high) {
+    private static void findInversions(int x, Comparable[] a, int low, int high) {
         System.out.println("Examining indices ("+low+","+high+")");
         if ( high == low ) return;
         if ((high-low) == 1) {
@@ -52,7 +52,8 @@ public class Inversions {
         Comparable[] a = new Comparable[count]; 
         for(int i = 0; i < size; ++i, --count) 
             a[i] = count;
-        findAllInversions(a, 0, a.length-1);
+        for(int i = 0 ; i < 100; i++)
+            findAllInversions(i, a, 0, a.length-1);
         for(Pair<Integer,Integer> p : data)  {
             if (p.getLeft() != -99) System.out.println("("+p.getLeft() +"," + p.getRight()+")");
         }
