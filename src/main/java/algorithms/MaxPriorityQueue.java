@@ -38,17 +38,17 @@ public class MaxPriorityQueue<Key extends Comparable<Key>> {
   // the parent is less than k and if so we exchange them
   // and proceed till we reach the root
   private void swim(int k) {
-    while(k > 1 && less(k/2, k)) {
-      exchange(k/2, k);
+    while(k > 1 && less(k/2, k)) { // check whether parent < child
+      exchange(k/2, k);            // switch places and loop again
       k = k/2;
     }
   }
   private void sink(int k) {
     while(2*k <= N) {
       int j = 2*k;
-      if (j < N && less(j, j+1)) j++;
-      if (!less(k, j)) break;
-      exchange(k, j);
+      if (j < N && less(j, j+1)) j++; // check whether left-child < right-child
+      if (!less(k, j)) break; // break the loop if parent >= left-child
+      exchange(k, j);         // otherwise parent and left-child switch places
       k = j;
     }  
   }
