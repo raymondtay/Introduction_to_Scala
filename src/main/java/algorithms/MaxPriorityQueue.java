@@ -9,8 +9,10 @@
 */
 import java.util.Random;
 
+
+
 public class MaxPriorityQueue<Key extends Comparable<Key>> {
-  private Key[] pq;
+  private Key[] pq; // note that pq[0] is unused.
   private int N = 0;
   public MaxPriorityQueue(int maxN) { 
     pq = (Key[]) new Comparable[maxN+1];
