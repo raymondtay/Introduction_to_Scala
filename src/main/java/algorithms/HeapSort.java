@@ -31,5 +31,11 @@ class HeapSort {
     }  
   }
 
+  public static void main(String[] args) {
+    Comparable[] a = new Comparable[15];
+    for(int i = 0, j = 15; i < 15; i++,j--) { a[i] = j; }
+    sort(a);
+    for(int i =0; i < 15; i++) System.out.println(a[i]);
+  }
 
 }
