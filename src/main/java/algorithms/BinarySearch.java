@@ -18,6 +18,12 @@ public class BinarySearch<Key extends Comparable<Key>, Value> {
     if (i < N && keys[i].compareTo(key) == 0) return vals[i];
     else return null;
   }
+  public Iterable<Key> keys(Key low, Key high) {
+    Queue<Key> q = new Queue<Key>();
+    for(int i = rank(low); i < rank(high); i++) q.enqueue(keys[i]);
+    if(contains(high)) q.enqueue(keys[rank(high)]);
+    return q;
+  }
 
   // rank() returns the number of keys smaller than a given key
   // for get(), the rank tells us precisely where the key
@@ -28,8 +34,8 @@ public class BinarySearch<Key extends Comparable<Key>, Value> {
     while(low <= high) {
       int mid = low + (high- low)/2;
       int cmp = key.compareTo(keys[mid]);
-      if (cmp < 0) high = mid - 1; 
-      else if (cmp > 0) low = mid + 1;
+      if      (cmp < 0) high = mid - 1; 
+      else if (cmp > 0) low  = mid + 1;
       else return mid;
     }
     return low;
