@@ -7,6 +7,20 @@
 
 public class QuickSort {
 
+    private static void sort3way(Comparable[] a, int low, int high) {
+        if (high <= low) return;
+        int lt = low, i = low + 1, gt = high;
+        Comparable v = a[low];
+        while( i <= gt ) {
+            int comp = a[i].compareTo(v);
+            if (comp < 0) exchange(a, lt++, i++);
+            else if (comp > 0) exchange(a, i, gt--);
+            else i++;
+        } 
+        sort(a, low, lt - 1);
+        sort(a, gt + 1, high);
+    }
+ 
     public static void sort(Comparable[] a) { 
         sort(a, 0, a.length - 1);
     }
