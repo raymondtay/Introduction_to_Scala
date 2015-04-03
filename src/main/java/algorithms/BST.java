@@ -24,18 +24,52 @@ public class BST<Key extends Comparable<Key>, Value> {
   private Value get(Node x, Key key) { 
     if (x == null) return null;
     int cmp = key.compareTo(x.key);
-    if (cmp < 0) return get(x.left, key);
+    if      (cmp < 0) return get(x.left, key);
     else if (cmp > 0) return get(x.right, key);
     else return x.val;
   }
   private Node put(Node x,Key key, Value val ) { 
     if (x == null) return new Node(key, val, 1);
     int cmp = key.compareTo(x.key);
-    if (cmp < 0) x.left = put(x.left, key, val);
+    if      (cmp < 0) x.left  = put(x.left, key, val);
     else if (cmp > 0) x.right = put(x.right, key, val);
     else x.val = val;
     x.N = size(x.left) + size(x.right) + 1;
     return x;
+  }
+
+  public Iterable<Key> keys() {
+    Queue<Key> keys = new Queue<Key>();
+    Queue<Node> queue = new Queue<Node>();
+    queue.enqueue(root);
+    while(!queue.isEmpty()) {
+      Node x = queue.dequeue();
+      if (x == null) continue;
+      keys.enqueue(x.key);
+      queue.enqueue(x.left);
+      queue.enqueue(x.right);
+    }
+    return keys;
+  }
+
+  // the minimum element is definitely 
+  // found in the left of any tree
+  public Key min() { return min(root).key; }
+
+  // keep following the left tree
+  private Node min(Node x) { 
+    if (x.left == null) return x;
+    return min(x.left);
+  }
+
+  private Node floor(Node x, Key key) {
+    if (x == null) return null;
+    int cmp = key.compareTo(x.key);
+    if (cmp == 0) return x;
+    if (cmp < 0) return floor(x.left, key);
+    Node t = floor(x.right, key);
+    if (t != null) return t;
+    else return x;
   }
 
   public static void main(String[] args) { 
