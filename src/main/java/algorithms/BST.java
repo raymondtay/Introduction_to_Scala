@@ -72,6 +72,60 @@ public class BST<Key extends Comparable<Key>, Value> {
 
   public int rank(Key key) { return rank(key, root); }
 
+  public void delete(Key key) {
+    root = delete(key, root);
+  }
+
+  public void deleteMin() { root = deleteMin(root); }
+  public void deleteMax() { root = deleteMax(root); }
+
+  private Node deleteMin(Node x) { 
+    if (x.left == null) return x.right; // for any node, the minimum is always on the left otherwise its on the right.
+    x.left = deleteMin(x.left);
+    x.N = size(x.left) + size(x.right) + 1;
+    return x;
+  }
+  private Node deleteMax(Node x) { 
+    if (x.right == null) return x.left; // for any node, the minimum is always on the left otherwise its on the right.
+    x.right = deleteMax(x.right);
+    x.N = size(x.left) + size(x.right) + 1;
+    return x;
+  }
+
+  /* 
+    The delete(Key, Node) method is based on Hibbard
+    (a) Save a link to the node to be deleted in t
+    (b) Set x to point to its successor min(t.right)
+    (c) Set the right link of x (which is supposed to point to the BST
+        containing all the keys larger than x.key) to deleteMin(t.right), the link
+        to the BST containing all the keys that are larger than x.key after the deletion
+    (d) Set the left link of x (which was null) to t.left 
+        (all the keys that are less than both the deleted 
+         keys and its successor).
+  */ 
+  private Node delete(Key key, Node x) { 
+    if (x== null) return null;
+    int cmp = key.compareTo(x.key);
+    // depending on whether the key we are looking to delete
+    // is on the left-/right-subtree, we go look for it;
+    // and when we do find it, we examine its children
+    // and if any of 2 children is not present, we return the other as its successor
+    // but if the located node has 2 children then we look for the minimum
+    // element in the left-subtree of this located node
+    if (cmp < 0 ) x.left = delete(key, x.left);
+    else if (cmp > 0) x.right = delete(key, x.right);
+    else {
+      if (x.right == null) return x.left;
+      if (x.left == null) return x.right;
+      Node t = x;
+      x = min(t.right);
+      x.right = deleteMin(t.right);
+      x.left = t.left;
+    } 
+    x.N = size(x.left) + size(x.right) + 1;
+    return x;
+  }
+
   private int rank(Key key, Node x) {
     // returns the number of keys less than x.key in the subtree
     // rooted at x.
