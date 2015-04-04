@@ -60,14 +60,35 @@ public class BST<Key extends Comparable<Key>, Value> {
     return x;
   }
 
+  public Iterable<Key> keys() { return keys(min(), max()); }
+  public Iterable<Key> keys(Key low, Key high) {
+    Queue<Key> queue = new Queue<Key>();
+    keys(root, queue, low, high);
+    return queue.values();
+  }
+  private void keys(Node x, Queue<Key> q, Key low, Key high) {
+    if (x == null) return;
+    int cmplow  = low.compareTo(x.key);
+    int cmphigh = high.compareTo(x.key);
+    if (cmplow < 0) keys(x.left, q, low, high);
+    if (cmplow < 0 && cmphigh >= 0) q.enqueue(x.key);
+    if (cmphigh > 0) keys(x.right, q, low, high);
+  }
+
   // the minimum element is definitely 
   // found in the left of any tree
   public Key min() { return min(root).key; }
+  public Key max() { return max(root).key; }
 
   // keep following the left tree
   private Node min(Node x) { 
     if (x.left == null) return x;
     return min(x.left);
+  }
+
+  private Node max(Node x) { 
+    if (x.right == null) return x;
+    return max(x.right);
   }
 
   private Node floor(Node x, Key key) {
