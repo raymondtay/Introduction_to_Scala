@@ -3,6 +3,7 @@ import java.util.*;
 
 public class BST<Key extends Comparable<Key>, Value> {
   private Node root;
+  private Node recentN; // most recently accessed node.
   private class Node {
     private Key key;
     private Value val;
@@ -14,10 +15,27 @@ public class BST<Key extends Comparable<Key>, Value> {
   }
   public void put(Key key, Value val) { 
     root = put(root, key, val);
+    setMostRecentlyAccessedNode(key, val);
   }
+
+  // not thread-safe
+  private void setMostRecentlyAccessedNode(Key key, Value val) { 
+    recentN = new Node(key, val, 1);
+  } 
+  // not thread-safe
+  private Value getMostRecentlyAccessedNode(Key key) {
+    if(recentN != null) {
+      int cmp = key.compareTo(recentN.key);
+      if (cmp == 0) return recentN.val; else return null;
+    } else return null;
+  } 
+
   public int size() { return size(root); }
   private int size(Node x) { if (x==null) return 0; else return x.N; }
-  public Value get(Key key) { return get(root, key); }
+  public Value get(Key key) { 
+   Value v = getMostRecentlyAccessedNode(key);
+   if (v != null) return v; else return get(root, key); 
+  }
   public boolean contains(Key key) { 
     return get(key) != null; 
   } 
@@ -26,7 +44,10 @@ public class BST<Key extends Comparable<Key>, Value> {
     int cmp = key.compareTo(x.key);
     if      (cmp < 0) return get(x.left, key);
     else if (cmp > 0) return get(x.right, key);
-    else return x.val;
+    else { 
+      setMostRecentlyAccessedNode(x.key, x.val);
+      return x.val;
+    }
   }
   private Node put(Node x,Key key, Value val ) { 
     if (x == null) return new Node(key, val, 1);
@@ -35,6 +56,7 @@ public class BST<Key extends Comparable<Key>, Value> {
     else if (cmp > 0) x.right = put(x.right, key, val);
     else x.val = val;
     x.N = size(x.left) + size(x.right) + 1;
+    setMostRecentlyAccessedNode(x.key, x.val);
     return x;
   }
 
