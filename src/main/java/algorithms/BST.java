@@ -38,20 +38,6 @@ public class BST<Key extends Comparable<Key>, Value> {
     return x;
   }
 
-  public Iterable<Key> keys() {
-    Queue<Key> keys = new Queue<Key>();
-    Queue<Node> queue = new Queue<Node>();
-    queue.enqueue(root);
-    while(!queue.isEmpty()) {
-      Node x = queue.dequeue();
-      if (x == null) continue;
-      keys.enqueue(x.key);
-      queue.enqueue(x.left);
-      queue.enqueue(x.right);
-    }
-    return keys;
-  }
-
   // the minimum element is definitely 
   // found in the left of any tree
   public Key min() { return min(root).key; }
@@ -72,6 +58,29 @@ public class BST<Key extends Comparable<Key>, Value> {
     else return x;
   }
 
+  public Key select(int k) { return select(root, k).key; }
+
+  private Node select(Node x, int k) { 
+    if (x == null) return null;
+    int t = size(x.left); // this operation is O(lg n)
+
+    /* for each invocation of 'select', i'm going to call size(..) once */
+    if (t > k) return select(x.left, k);
+    else if (t < k) return select(x.right, k);
+    else return x;
+  }
+
+  public int rank(Key key) { return rank(key, root); }
+
+  private int rank(Key key, Node x) {
+    // returns the number of keys less than x.key in the subtree
+    // rooted at x.
+    if (x == null ) return 0;
+    int cmp = key.compareTo(x.key);
+    if (cmp < 0) return rank(key, x.left);
+    else if (cmp > 0) return 1 + size(x.left) + rank(key, x.right);
+    else return size(x.left);
+  }
   public static void main(String[] args) { 
     Random r = new Random(42);
     BST<Integer, Integer> bst = new BST<Integer, Integer>();
