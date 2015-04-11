@@ -25,6 +25,7 @@ object InvertedIndex extends App {
         line => 
             val xs = line.split(sep) // array of strings or empty array
             val key = xs.head
+            println(s"Analyzing data for $key")
             for { 
               w <- xs.tail 
             } {
@@ -42,6 +43,19 @@ object InvertedIndex extends App {
               ts = addTm(ts, w, key)
             }
     }
+    println("Analysis done.")
+    stdin.getLines.foreach {
+      query => 
+        println(s"query is $query..")
+        st.contains(query) match {
+          case true  => st(query).map(x => println("   " + x))
+          case false => 
+            ts.contains(query) match {
+              case true  => ts(query).map(x => println("   " + x))
+              case false => println("Didn't find anything.Try again or hit ctrl-c to quit")
+            }
+        }
+    }    
   }
 }
 
