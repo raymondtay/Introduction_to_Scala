@@ -6,29 +6,32 @@ object IntroToScalaBuild extends Build {
     import TestingDeps._
     import AkkaDeps._
     import CacheTech._
+    import DataProcessor._
 
     val localRepoResolvers = Seq( "Local Maven Repo" at "file://"+Path.userHome.absolutePath+"/.m2/repository",
         "Local Ivy Repo" at "file://"+Path.userHome.absolutePath+"/.ivy2/local")
 
-    val jol = "org.openjdk.jol" % "jol-core" % "1.0-SNAPSHOT"
+    val jol = "org.openjdk.jol" % "jol-core" % "0.4-SNAPSHOT"
     lazy val demo = Project(
     id = "introduction-to-scala",
     base = file("."),
     settings = Project.defaultSettings ++ Seq(
         name := "Scala",
         version := "0.1-SNAPSHOT",
-        scalaVersion := "2.10.4",
+        scalaVersion := "2.11.6",
         scalacOptions ++= Seq("-feature", "-deprecation", "-language:postfixOps","-language:higherKinds", "-language:implicitConversions"),
         resolvers ++= Seq("snapshots", "releases").map(Resolver.sonatypeRepo),
         resolvers ++= localRepoResolvers,
         resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
+        resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
         scalacOptions in Test ++= Seq("-Yrangepos"),
         libraryDependencies ++= testDeps,
         libraryDependencies ++= Seq(jocl, jol, jcs, jcs_core, jcs_jcache),
         libraryDependencies ++= Seq(actors, actorCluster),
         libraryDependencies ++= Seq(scalaReflect),
         libraryDependencies ++= Seq(actortestkit),
-        libraryDependencies ++= Seq(persistence)
+        libraryDependencies ++= Seq(persistence),
+        libraryDependencies ++= Seq(jackson_scala, jackson_databind)
         ) )
 }
 
@@ -52,6 +55,11 @@ object AkkaDeps {
     val actorCluster = "com.typesafe.akka" %% "akka-cluster" % "2.3.2"
     val actortestkit = "com.typesafe.akka" %% "akka-testkit" % "2.3.2" % "test"
     val scalaReflect =  "org.scala-lang" % "scala-reflect" % "2.10.3"
+}
+
+object DataProcessor {
+  val jackson_scala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.3.6-SNAPSHOT"
+  val jackson_databind = "com.fasterxml.jackson.core" % "jackson-databind" % "2.3.6-SNAPSHOT"
 }
 
 object OpenCL {
