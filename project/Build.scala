@@ -24,6 +24,8 @@ object IntroToScalaBuild extends Build {
         resolvers ++= localRepoResolvers,
         resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
         resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+        resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases",
+
         scalacOptions in Test ++= Seq("-Yrangepos"),
         libraryDependencies ++= testDeps,
         libraryDependencies ++= Seq(jocl, jol, jcs, jcs_core, jcs_jcache),
@@ -45,15 +47,15 @@ object TestingDeps {
     val scalaTest = "org.scalatest" %% "scalatest" % "2.2.4" % "test"
     val junit4Interface = "com.novocode" % "junit-interface" % "0.10-M4" % "test"
     val junit4 = "junit" % "junit" % "4.11" % "test"
-    val specs2 = "org.specs2" %% "specs2" % "2.3.10" % "test"
+    val specs2 = "org.specs2" %% "specs2-core" % "3.5" % "test"
     val testDeps = Seq(specs2, scalaTest, junit4, junit4Interface)
 }
 
 object AkkaDeps {
-    val persistence = "com.typesafe.akka" %% "akka-persistence" % "2.3.10"
-    val actors = "com.typesafe.akka" %% "akka-actor" % "2.3.10"
-    val actorCluster = "com.typesafe.akka" %% "akka-cluster" % "2.3.10"
-    val actortestkit = "com.typesafe.akka" %% "akka-testkit" % "2.3.10" % "test"
+    val persistence = "com.typesafe.akka" % "akka-persistence_2.10" % "2.3.4"
+    val actors = "com.typesafe.akka" % "akka-actor_2.10" % "2.3.4"
+    val actorCluster = "com.typesafe.akka" % "akka-cluster_2.10" % "2.3.4"
+    val actortestkit = "com.typesafe.akka" % "akka-testkit_2.10" % "2.3.4" % "test"
     val scalaReflect =  "org.scala-lang" % "scala-reflect" % "2.11.6"
 }
 
