@@ -42,7 +42,7 @@ object CacheTech {
 }
 
 object TestingDeps {
-    val scalaTest = "org.scalatest" % "scalatest_2.10" % "2.0.M6" % "test"
+    val scalaTest = "org.scalatest" %% "scalatest" % "2.2.4" % "test"
     val junit4Interface = "com.novocode" % "junit-interface" % "0.10-M4" % "test"
     val junit4 = "junit" % "junit" % "4.11" % "test"
     val specs2 = "org.specs2" %% "specs2" % "2.3.10" % "test"
@@ -50,11 +50,11 @@ object TestingDeps {
 }
 
 object AkkaDeps {
-    val persistence = "com.typesafe.akka" %% "akka-persistence-experimental" % "2.3.1"
-    val actors = "com.typesafe.akka" %% "akka-actor" % "2.3.2"
-    val actorCluster = "com.typesafe.akka" %% "akka-cluster" % "2.3.2"
-    val actortestkit = "com.typesafe.akka" %% "akka-testkit" % "2.3.2" % "test"
-    val scalaReflect =  "org.scala-lang" % "scala-reflect" % "2.10.3"
+    val persistence = "com.typesafe.akka" %% "akka-persistence" % "2.3.10"
+    val actors = "com.typesafe.akka" %% "akka-actor" % "2.3.10"
+    val actorCluster = "com.typesafe.akka" %% "akka-cluster" % "2.3.10"
+    val actortestkit = "com.typesafe.akka" %% "akka-testkit" % "2.3.10" % "test"
+    val scalaReflect =  "org.scala-lang" % "scala-reflect" % "2.11.6"
 }
 
 object DataProcessor {
