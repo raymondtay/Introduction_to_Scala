@@ -46,4 +46,18 @@ binding and `yield` being converted to a call to `map`.
 
 You should feel free to use for-comprehensions in place of explicit calls to `flatMap` and `map`.
 
+```scala
 
+def unfold[A,S](z: S)(f: S => Option[(A,S)]) : Stream[A]
+
+```
+
+The `unfold` function is an example of what's sometimes called a corecursive function.
+Whereas a recursive function consumes data, a corecursive function produces data. And 
+whereas recursive functions terminate by recursing on smaller inputs, corecursive functions 
+need not terminate so long as they remain productive, which just means that we can always
+evaluate more of the result in a finite amount of time. The `unfold` function is productive
+as long as f terminates, since we just need to run the function f one more time to generate
+the next element of the `Stream`. Corecursion is also sometimes called _guarded recursion_, 
+and productivity is also sometimes called _cotermination_.
+ 
