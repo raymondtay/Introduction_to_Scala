@@ -60,4 +60,49 @@ evaluate more of the result in a finite amount of time. The `unfold` function is
 as long as f terminates, since we just need to run the function f one more time to generate
 the next element of the `Stream`. Corecursion is also sometimes called _guarded recursion_, 
 and productivity is also sometimes called _cotermination_.
- 
+
+# Understand State 
+
+```scala
+trait RNG {
+  def nextInt : (Int, RNG)
+}
+```
+The above is our state object which encapsulates a _driver_ which drives
+the creation of the next _state_. Let's quickly take a look at how 
+we can prototype the next few functions:
+```scala
+
+type Rand[+A] = RNG => (A, RNG) // basically a function that takes in 1 RNG and returns a tuple
+
+val int : Rand[Int] = _.nextInt
+
+// 
+// the "unit" function is akin to "pure", "return" in Applicatives and Monads
+// respectively.
+//
+def unit[A](a : A) : Rand[A] = rng => (a, rng)
+
+// 
+// Traverses the structure with function application
+//
+def map[A,B](a: Rand[A])(f: A => B) : Rand[B] = 
+  rng => {
+    val (a, rng2) = a(rng)
+    (f(a), rng2)
+  }
+
+type State[S,+A] = S => (A, S)
+// State is short for computation that carries some state along, or
+// state action, state transition or even statement.
+// we can also write the following:
+case class State[S,+A](run : S => (A, S)) 
+
+type Rand[A] = State[RNG,A] // this is a generalization of the earlier
+
+```
+The representation does not matter too much. What is important is that we have a single,
+general purpose type, and using this type we can write general purpose functions for 
+capturing common patterns of stateful programs.
+
+
