@@ -105,4 +105,17 @@ The representation does not matter too much. What is important is that we have a
 general purpose type, and using this type we can write general purpose functions for 
 capturing common patterns of stateful programs.
 
+```scala
+// Takes an unevaluated A and returning a
+// computation that might evaluate it in a separate thread. 
+// `Unit` in a sense creates a unit of parallelism that wraps 
+// a single value.
+def unit[A](a: => A) : Par[A]
+```
+
+Function arguments in Scala are strictly evaluated from left to right, so if 
+`unit` delays execution untill `get` is called, we will both spawn
+the parallel computations and wait for it to finish before spawning the second
+parallel computation. This means the computation is effectively sequential :(
+
 
