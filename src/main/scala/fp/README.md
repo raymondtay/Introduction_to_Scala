@@ -156,4 +156,31 @@ object Par
 }
 ```
 
+# Why laws about code and proofs are important
+
+It may seem unusual to state and prove properties about an API. This certainly isn't 
+something typically done in ordinary programming. Why is important in FP ?
+
+In functional programming it's easy and expected, to factor out common functionality
+into generic, reusable components that can be composed. Side effects hurt compositionality
+but more generally, any hidden or out-of-band assumption or behavior that
+prevents us from treating our components (be they functions or anything else) as _black boxes_
+makes composition difficult or impossible.
+
+# Recognizing the expressiveness and limitations of an algebra
+
+As you practice more functional programming, one of the skills you will develop is the 
+ability to recognize what functions are expressions from an algebra, and what 
+are the limitations of that algebra are. For instance, in the preceding example, it may not
+have been obvious at first that a function like `choice` couldnt' be expressed purely 
+in terms of `map`, `map2` and `unit` and it may not have been obvious that `choice` 
+was just a special case of `flatMap`. Over time, observations like this will come quickly
+and you will also get better at spotting how to modify your algebra to make 
+some needed combinator expressions. These skills will be helpful for all of your API design work.
+
+As a practical consideration, being able to reduce an API to a minimal set of primitive 
+functions is extremely useful. As we noted earlier when we implemented `parMap` in 
+terms of existing combinators, it is frequently the case that primitive combinators
+encapsulate some rather tricky logic and resuing them means we don't have to duplicate this logic.
+
 
