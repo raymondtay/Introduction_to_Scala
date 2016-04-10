@@ -183,4 +183,68 @@ functions is extremely useful. As we noted earlier when we implemented `parMap` 
 terms of existing combinators, it is frequently the case that primitive combinators
 encapsulate some rather tricky logic and resuing them means we don't have to duplicate this logic.
 
+# What is a Monoid ?
+
+Let's consider the algebra of string concatenation. We can add "foo" + "bar" to get
+"foobar" and the empty string is an identity element for that operation. That is, if we
+say (s + "") or ("" + s), the result is always s. Furthermore, if we combine three
+strings by saying `(r + s + t)`, the operation is _associative_ - it doesn't matter whether
+we parenthesize it: `((r + s) + t)` is the same as `(r + (s + t))`
+
+The exact same rules govern integer addition. It is associative since `(x + y ) + z` is the same 
+as `x + (y + z)` and it has an identity value, 0, which does nothing when added to another integer.
+Ditto for multiplication, whose identity element is 1.
+
+The Boolean operators `&&` and `||` are likewise associative, and they have identity 
+elements `true` and `false` respectively. 
+
+These are just a few examples, but algebras like this are virtually everywhere. The term for 
+this kind of algebra is _monoid_. The laws of associativity and identity are collectively
+called the _monoid laws_. A monoid consists of the following :
+
++ Some type `A`
+
++ An associative binary operation, `op`, that takes two values of type `A` and combines them into 
+  one: `op(op(x,y), z) == op(x, op(y, z))` for any choice of `x: A`, `y : A` and `z : A`.
+
++ A value, `zero: A`, that is an identity for that operation : ` op(x, zero) == x ` and 
+  `op(zero, x) == x` for any `x: A`.
+
+```scala
+
+trait Monoid[A] {
+  def op(x: A, y: A) : A
+  def zero: A
+}
+
+// two examples as follows:
+
+val stringMonoid = new Monoid[String] {
+  def op(x: String, y: String) = x + y
+  def zero= ""
+}
+
+def listMonoid[A] = new Monoid[List[A]] {
+  def op(x: List[A], y: List[A]) = x ++ y
+  def zero = Nil
+}
+
+```
+
+## The purely abstract nature of an algebraic structure
+
+Notice that other than satisfying the monoid laws, the various `Monoid` instances
+don't have much to do with each other. The answer to the question " What is a 
+monoid?" is simply that a monoid is a type, together with the monoid operations 
+and a set of laws. A monoid is the algebra, and nothing more. Of course, you may build
+some other intuition by considering the various concrete instances, but this 
+intuition is necessarily imprecise and nothing guarantees that all monoids you encounter
+with match your intuition!
+
+A function having the same argument and return type is sometimes called 
+an _endo function_. 
+
+# Enough of theory, how about some examples ??? 
+
+
 
