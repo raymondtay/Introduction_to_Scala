@@ -10,12 +10,8 @@ import org.scalacheck.Prop.forAll
 object PropTests {
 
   implicit val anyMonoid : Arbitrary[Monoid[Int]] = 
-    Arbitrary{
-      for {
-        n <- Gen.choose(0,10)
-        y <- Gen.choose(0,10)
-      } yield monoidsonly.Monoid.IntMonoid
-    }
+    Arbitrary(monoidsonly.Monoid.IntMonoid)
+
   val defaultMonoidProps = forAll{ m: Monoid[Int] => m.mzero == 0 }
 
 }
