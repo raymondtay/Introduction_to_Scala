@@ -22,10 +22,22 @@ object Monoid {
 }
 object SampleMonoidFns {
 
-    def sum[A: Monoid](xs: List[A]) = {
-        val m = implicitly[Monoid[A]]
-        xs.foldLeft(m.mzero)(m.mappend)
+  // Exercise 10.17 in Chapter 10 of the book
+  def functionMonoid[A,B](b: Monoid[B]) : Monoid[A => B] =
+    new Monoid[A => B] {
+      def mzero : A => B = (a:A) => b.mzero
+      def mappend(f : A => B, g : A => B): A => B = 
+        (a: A) => b.mappend(
+                    b.mappend(
+                        f(a), f(a)), 
+                        b.mappend(g(a), g(a)
+                    ))
     }
+
+  def sum[A: Monoid](xs: List[A]) = {
+      val m = implicitly[Monoid[A]]
+      xs.foldLeft(m.mzero)(m.mappend)
+  }
 
 }
 
