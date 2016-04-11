@@ -244,7 +244,60 @@ with match your intuition!
 A function having the same argument and return type is sometimes called 
 an _endo function_. 
 
-# Enough of theory, how about some examples ??? 
+
+# Associativity and Parallelism
+
+The fact that a monoid's operation is associative means we can choose how we fold a
+data structure, like a list. We have already seen that operations can be associated to 
+the left or right to reduce a list sequentially with `foldLeft` or `foldRight`. But 
+if we have a monoid, we can reduce a list using a `balanced fold`, which can be more 
+efficient for some operations and also allows for parallelism.
+
+Let's visualize how folding to the right would look like
+
+`op(a, op(b , op(c, d)))`
+
+and folding to the left would look like this:
+
+`op(op(op(a, b), c),d)`
+ 
+but a balanced fold looks like this:
+
+`op( op(a, b), op(c, d) )`
+
+# Monoid homomorphisms
+
+If you have your law-discovering cap on while reading this chapter (i.e. Chapter 10 of the book)
+you may notice that there's a law for some functions between _monoids_. Take the `String`
+concatenation monoid and the integer addition monoid. If you take the lengths of
+two strings and add them up. it's the same as taking the lenfgth of the concatenation of 
+those two strings:
+
+```scala
+"foo".length + "bar.length" == ("foo" + "bar").length
+```
+
+Here, `length` is a function from String to Int that preserves the monoid structure. 
+Such a function is called a _monoid homomorphism_. A monoid homomorphism f
+between monoids M and N obeys the following general law for all values x and y:
+"""
+
+M.op(f(x), f(y)) == f(N.op(x , y))
+
+"""
+This property can be useful when designing your own libraries. If two types that your
+library uses are monoids, and there exist functions between them, it's a good idea to think
+about whether those functions are expected to preserve the monoid structure and to check 
+the monoid homomorphism law with automated tests.
+
+Sometimes, there will be a homomorphism in both directions between two monoids. 
+If they satisfy a monoid homomorphism (iso-meaning equal), we say that the two
+monoids are isomorphic. A monoid isomorphism between M and N has two homomorphisms
+f and g, where both `f andThen g` and `g andThen f` are an identity function.
+
+For example, the `String` and `List[Char]` monoids with concatenation are isomorphic.
+The two boolean monoids `(false, ||)` and `(true, &&)` are also isomorphic, via the
+negation function i.e. `!`.
 
 
 
