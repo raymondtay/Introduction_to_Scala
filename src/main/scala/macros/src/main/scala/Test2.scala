@@ -10,6 +10,7 @@ case class Dog(name: String, favouriteFood: String) extends Animal {
 
 object AnimalMain extends App {
 
+  Dog("aa", "donuts").yum
   Dog("barky", "satay").sayHello
   Dog("lucky", "burger").apport
 

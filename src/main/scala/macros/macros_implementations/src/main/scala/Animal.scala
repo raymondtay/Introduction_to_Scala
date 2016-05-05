@@ -16,8 +16,10 @@ object TalkingAnimalSpell {
       annottees.map(_.tree).toList match {
         case q"$mods class $tpname[..$tparams] $ctorMods(...$paramss) extends Animal with ..$parents { $self => ..$stats }" :: Nil => {
           val animalType = tpname.toString()
+          val newMethods = q"""def yum = println(s" This " + favouriteFood + " is yummy!")"""
           q"""$mods class $tpname[..$tparams] $ctorMods(...$paramss) extends Animal with ..$parents{
             $self => ..$stats
+            $newMethods
             def sayHello : Unit = { println("Hello there! I'm " + $animalType + " and my name is " + name + ", i like to eat " +
           favouriteFood) } }"""
         }
